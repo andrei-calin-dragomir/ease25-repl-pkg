@@ -25,7 +25,7 @@ def execute_remote_command(command : str = '', with_output : bool = False, long 
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     timeout = 5 #Seconds
-    check_interval = 0.1 #Seconds
+    check_interval = 0.5 #Seconds
 
     try:
         # Connect to the experimental machine
@@ -33,15 +33,11 @@ def execute_remote_command(command : str = '', with_output : bool = False, long 
 
         # Execute the command
         _, stdout, _ = ssh.exec_command(command)
+
         if with_output:
             # Wait for the command output to be ready
-            start_time = time.time()
-            while not stdout.channel.recv_ready():
-                # If the timeout is reached, raise an exception
-                if time.time() - start_time > timeout:
-                    raise TimeoutError
-                time.sleep(check_interval)
-            data = stdout.readline() if not long else stdout.readlines()
+            time.sleep(1) #Wait for response from experimental machine
+            data = stdout.readline() if long == False else stdout.readlines()
             return data
         else:
             return None
