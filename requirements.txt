@@ -1,0 +1,10 @@
+# Orchestration specific dependencies
+paramiko
+python-dotenv
+
+# Experiment Runner dependencies
+pandas
+psutil
+tabulate
+dill
+jsonpickle
