@@ -12,46 +12,11 @@ from pathlib import Path
 from os.path import dirname, realpath
 
 # Experiment specific imports
-import paramiko
 import time
 from os import getenv
 from dotenv import load_dotenv
 
 load_dotenv()
-
-def execute_remote_command(command : str = '', with_output : bool = False, long : bool = False):
-    # Establish SSH client
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-    timeout = 5 #Seconds
-    check_interval = 0.1 #Seconds
-
-    try:
-        # Connect to the experimental machine
-        ssh.connect(hostname=getenv('HOSTNAME'), username=getenv('USERNAME'), password=getenv('PASSWORD'))
-
-        # Execute the command
-        _, stdout, _ = ssh.exec_command(command)
-        if with_output:
-            # Wait for the command output to be ready
-            start_time = time.time()
-            while not stdout.channel.recv_ready():
-                # If the timeout is reached, raise an exception
-                if time.time() - start_time > timeout:
-                    raise TimeoutError
-                time.sleep(check_interval)
-            data = stdout.readline() if not long else stdout.readlines()
-            return data
-        else:
-            return None
-    except paramiko.SSHException:
-        output.console_log_FAIL('Failed to send run command to machine!')
-    except TimeoutError:
-        output.console_log_FAIL('Timeout reached while waiting for command output.')
-    finally:
-        # Close the connection
-        ssh.close()
 
 def parse_perf_output(perf_output):
     # Initialize dictionary with all data_columns as keys and default to None
@@ -162,7 +127,9 @@ class RunnerConfig:
     def before_experiment(self) -> None:
         """Perform any activity required before starting the experiment here
         Invoked only once during the lifetime of the program."""
-        execute_remote_command(f'mkdir -p experiments/{self.name}')
+        # Make directory for current experiment on experimental machine
+        # execute_remote_command(f'mkdir -p experiments/{self.name}')
+
         output.console_log("Config.before_experiment() called!")
 
     def before_run(self) -> None:
@@ -183,7 +150,7 @@ class RunnerConfig:
         output.console_log_bold(f'Run command: {run_command}')
             
         # Load the command and suspend it but return the PID so that monitors can attach to it.
-        self.interaction_pid = execute_remote_command(f"bash -c \'{run_command}\' & pid=$!; kill -SIGSTOP $pid; echo $pid", with_output=True)
+        # self.interaction_pid = execute_remote_command(f"bash -c \'{run_command}\' & pid=$!; kill -SIGSTOP $pid; echo $pid")
         output.console_log_bold(f'Interaction_PID: {self.interaction_pid}')
         
         output.console_log_OK(f'Spawned and suspended process on remote.')
@@ -194,14 +161,15 @@ class RunnerConfig:
 
         # Create run measurement directory
         run_dir = f'experiments/{self.name}/{context.run_dir.name}/'
-        execute_remote_command(f'mkdir -p {run_dir}')
+        # execute_remote_command(f'mkdir -p {run_dir}')
         output.console_log(run_dir)
         
         perf_command_template = 'echo {password} | bash -c \'sudo -S perf stat -x, -o {run_dir}perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p {process_id}\''
 
-        execute_remote_command(perf_command_template.format(password=getenv('PASSWORD'),
-                                                            run_dir=run_dir,
-                                                            process_id=self.interaction_pid))
+        # Start perf monitor and attach it to the target process
+        # execute_remote_command(perf_command_template.format(password=getenv('PASSWORD'),
+        #                                                     run_dir=run_dir,
+        #                                                     process_id=self.interaction_pid))
 
         output.console_log_OK('Monitors are ready to collect.')
         time.sleep(1)  # Allow time for monitoring tools to attach
@@ -211,7 +179,8 @@ class RunnerConfig:
         output.console_log("Config.interact() called!")
 
         self.execution_time = time.time()
-        execute_remote_command(f"kill -SIGCONT {self.interaction_pid}")
+        # Resume interaction process once all monitors are ready
+        # execute_remote_command(f"kill -SIGCONT {self.interaction_pid}")
         self.execution_time = (time.time() - self.execution_time) * 1000 # Convert to milliseconds
         
         output.console_log_OK('Run command finished successfully.')
@@ -225,8 +194,8 @@ class RunnerConfig:
     def stop_run(self, context: RunnerContext) -> None:
         """Perform any activity here required for stopping the run.
         Activities after stopping the run should also be performed here."""
-        output.console_log("Config.stop_run() called!")
         self.interaction_pid = None
+        output.console_log("Config.stop_run() called!")
 
     def populate_run_data(self, context: RunnerContext) -> Optional[Dict[str, SupportsStr]]:
         """Parse and process any measurement data here.
@@ -234,11 +203,14 @@ class RunnerConfig:
         Returns a dictionary with keys `self.run_table_model.data_columns` and their values populated"""
         output.console_log("Config.populate_run_data() called!")
 
-        # Save perf output data
         perf_file = f'experiments/{self.name}/{context.run_dir.name}/perf.csv'
-        perf_data = execute_remote_command(f'cat {perf_file}', with_output=True, long=True)
+
+        # Extract perf output from experimental machine for current run
+        # perf_data = execute_remote_command(f'cat {perf_file}')
         
-        perf_output = parse_perf_output(perf_data[2:])
+        # Package the received data
+        # perf_output = parse_perf_output(perf_data[2:])
+        perf_output = {}
 
         auxiliary_data = {
             'execution_time' : self.execution_time
