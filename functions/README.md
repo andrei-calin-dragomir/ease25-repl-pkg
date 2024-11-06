@@ -1,7 +1,7 @@
 # README
 
 ## Benchmarks
-We selected n functions from the Computer Language Benchmark Game (CLBG) following these criteria to mitigate any threat to validity related to the characteristics of the code:
+We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) following these criteria to mitigate any threat to validity related to the characteristics of the code:
 
 1. well-defined developer profile
 2. no parallelism (single-thread) 
@@ -23,14 +23,17 @@ Selected Functions Performance Profile on CLBG:
 ### Competitors
 
 [PyPerformanceBenchmark](https://github.com/python/pyperformance/tree/main) used by Python contributors to test Python's features.
+
 [PyPyBenchmark](https://foss.heptapod.net/pypy/benchmarks)
+
 Some of their functions use third-party libraries, such as Djago. Probably not suitable for us as we want to see how the compilers optimized the code.
+
 [RosettaCode](https://foss.heptapod.net/pypy/benchmarks)
 
 ## Compilers 
 
-execution_modes = {Codon, Nuitka, PyPy, Numba, Cython, Pyston, mypyc, pythran, native (CPython)}
-not_considered = {Mojo, Taichi, Regaz}
+`execution_modes = {Codon, Nuitka, PyPy, Numba, Cython, Pyston, mypyc, pythran, native (CPython)}`
+`not_considered = {Mojo, Taichi, Regaz}`
 
 note: the modes are different: interpreted, python DSL, AOT, JIT. We describe in the discussion section but not part of this study.
 
@@ -48,8 +51,12 @@ Worst Case: 7h x 9 modes = 2.6 days
 Paper done
 
 If we have time:
+
 ### RQ3: Multithreading 
 Take the multithreaded version of the above functions and rerun the experiment
 
 ### RQ4: vs C++ 
 Take the C++ version of the above functions and rerun the experiment
+
+
+
