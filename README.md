@@ -1,4 +1,4 @@
-# greenlab-python-compilation-experiment
+# EASE25-repl-pkg
 This repository contains an experimental setup for a study of different python compilation methods with regards to their efficiency
 
 ## Subjects
