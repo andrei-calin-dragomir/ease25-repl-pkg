@@ -56,13 +56,14 @@ NB: The functions on the CLBG were executed on a quad core. Our NUC should be mo
 
 ### CheckList 
 
-- [ ] define run_table.csv (function, exec_mode, cpu_usage, execution_time, energy_usage, llc, vms, rss)
+- [x] define run_table.csv (function, exec_mode, cpu_usage, execution_time, energy_usage, llc, vms, rss, etc.)
 - [x] randomization
 - [x] cooling down period of 2 min
 - [x] warm up run: prior to the experiment run a function to warm up the machine (e.g., fibonacci.py) for 1m and then cool the machine for 30 seconds.
+- [x] save the output of the functions
+- [ ] add validation of result for each function
 - [ ] check the conditions of the testbed when idle.
 - [ ] setup compilers to save intermediate files
-- [x] save the output of the functions
 - [ ] check Hyperthreading OFF
 - [ ] check Turbo boost OFF (Linux Governor Powersave)
 
@@ -89,6 +90,7 @@ The metrics we collect are as follows:
         - Temperature - Celsius
         - Usage - Percentage
     - Per Process:
+        - CPU Usage - Percentage
         - Used Memory - Bytes
         - Used Swap Memory - Bytes
     - Execution Time - ms
@@ -126,5 +128,5 @@ sudo setcap cap_sys_rawio=ep target/release/energibridge
 
 ```bash
 source ./venv/bin/activate
-python /experiment-runner/experiment-runner/ RunnerConfig.py
+python /experiment-runner/experiment-runner/ RunnerConfig_execution.py
 ```
