@@ -159,6 +159,10 @@ class RunnerConfig:
 
         """The frequency at which the metric collectors will collect data (in miliseconds)."""
         self.metric_capturing_interval: int = 1000
+        
+        self.warmup_time : int = 60
+        self.post_warmup_cooldown_time : int = 30
+        self.post_run_cooldown_time : int = 120
 
         output.console_log("Custom config loaded")
 
@@ -183,13 +187,13 @@ class RunnerConfig:
         output.console_log("Config.before_experiment() called!")
         # Warmup machine for one minute
         ssh = ExternalMachineAPI()
-        warmup_command = f'{self.python_venv_path} {self.remote_path}/functions/warmup.py 100000 & pid=$!; echo $pid'
+        warmup_command = f'{self.python_venv_path} {self.remote_path}/functions/warmup.py 1000 & pid=$!; echo $pid'
         ssh.execute_remote_command(warmup_command)
-        time.sleep(60)
-        ssh.execute_remote_command(f'kill -p {ssh.stdout.readline()}')
-
+        time.sleep(self.warmup_time)
+        ssh.execute_remote_command(f'kill {ssh.stdout.readline()}')
         # Cooldown machine
-        time.sleep(30)
+        time.sleep(self.post_warmup_cooldown_time)
+
         output.console_log_OK("Warmup finished. Experiment is starting now!")
 
     def before_run(self) -> None:
@@ -285,7 +289,7 @@ class RunnerConfig:
         # energibridge_output = parse_energi_output(ssh.stdout.readlines())
 
         # Cooldown experimental machine
-        time.sleep(120)
+        time.sleep(self.post_run_cooldown_time)
 
         return dict(perf_output.items()  | self.intermediary_results.items()) # | energibridge_output.items()
 
