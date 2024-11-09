@@ -12,11 +12,30 @@ from pathlib import Path
 from os.path import dirname, realpath
 
 # Experiment specific imports
-import time
+import paramiko
 from os import getenv
 from dotenv import load_dotenv
 
-load_dotenv()
+class ExternalMachineAPI:
+    def __init__(self):
+        load_dotenv()
+
+        self.ssh = paramiko.SSHClient()
+        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            self.ssh.connect(hostname=getenv('HOSTNAME'), username=getenv('USERNAME'), password=getenv('PASSWORD'))
+        except paramiko.SSHException:
+            output.console_log_FAIL('Failed to send run command to machine!')
+
+    def execute_remote_command(self, command : str = ''):
+        try:
+            # Execute the command
+            self.stdin, self.stdout, self.stderr = self.ssh.exec_command(f'echo {getenv('PASSWORD')} | {command}' if command.startswith('sudo') else command)
+        except paramiko.SSHException:
+            output.console_log_FAIL('Failed to send run command to machine!')
+        except TimeoutError:
+            output.console_log_FAIL('Timeout reached while waiting for command output.')
 
 def parse_perf_output(perf_output):
     # Initialize dictionary with all data_columns as keys and default to None
@@ -46,6 +65,10 @@ def parse_perf_output(perf_output):
 
     return perf_data
 
+def parse_energi_output(perf_output):
+    return {}
+    
+
 class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
 
@@ -65,7 +88,6 @@ class RunnerConfig:
     This can be essential to accommodate for cooldown periods on some systems."""
     time_between_runs_in_ms:    int             = 5000
 
-
     # Dynamic configurations can be one-time satisfied here before the program takes the config as-is
     # e.g. Setting some variable based on some criteria
     def __init__(self):
@@ -82,6 +104,9 @@ class RunnerConfig:
             (RunnerEvents.POPULATE_RUN_DATA, self.populate_run_data),
             (RunnerEvents.AFTER_EXPERIMENT , self.after_experiment )
         ])
+
+        load_dotenv()
+
         self.run_table_model = None  # Initialized later
         
         
@@ -102,16 +127,28 @@ class RunnerConfig:
         }
 
         self.target_path_template = './functions/{subject}/{target}'
+        self.perf_output_file_template = '{self.run_dir}/perf.csv'
+        self.energibridge_output_file_template = '{run_directory}/energibridge.csv'
+        self.run_command_template = 'bash -c {subject_command} &'
+        self.run_directory_template = '{results_output_path}/{name}/{run_directory_name}'
 
+        self.energibrige_command_template = 'sudo -S ./EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {energibridge_output_file} {run_command}'
+        self.perf_command_template= 'sudo -S perf stat -x, -o {perf_output_file} -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p {interaction_pid}'
 
         self.interaction_pid = None
         self.perf_monitor = None
+
+        self.machine = ExternalMachineAPI()
+
+        """The frequency at which the metric collectors will collect data (in miliseconds)."""
+        self.metric_capturing_interval: int = 1000
 
         output.console_log("Custom config loaded")
 
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
+        # TODO Update Factors
         factor1 = FactorModel("subject", ['python', 'nuitka']) # 'pypy', 'numba', 'codon', 
         factor2 = FactorModel("target", ['spectralnorm'])
         self.run_table_model = RunTableModel(
@@ -120,22 +157,21 @@ class RunnerConfig:
             exclude_variations=[],
             data_columns=['cache-references', 'cache-misses', 'LLC-loads', 'LLC-load-misses', 'LLC-stores', 'LLC-store-misses',
                           'cache-references_percent', 'cache-misses_percent', 'LLC-loads_percent', 'LLC-load-misses_percent', 'LLC-stores_percent', 'LLC-store-misses_percent',
+                          'total_joules',
                           'avg_cpu', 'avg_mem', 'execution_time']
         )
         return self.run_table_model
 
     def before_experiment(self) -> None:
-        """Perform any activity required before starting the experiment here
-        Invoked only once during the lifetime of the program."""
-        # Make directory for current experiment on experimental machine
-        # execute_remote_command(f'mkdir -p experiments/{self.name}')
-
-        output.console_log("Config.before_experiment() called!")
+        pass
 
     def before_run(self) -> None:
         """Perform any activity required before starting a run.
         No context is available here as the run is not yet active (BEFORE RUN)"""
         output.console_log("Config.before_run() called!")
+
+        # TODO Warmup machine check CHECKLIST
+
 
     def start_run(self, context: RunnerContext) -> None:
         """Perform any activity required for starting the run here.
@@ -143,59 +179,62 @@ class RunnerConfig:
         Activities after starting the run should also be performed here."""
         output.console_log("Config.start_run() called!")
         
-        subject_command = self.subject_execution_templates[context.run_variation['subject']]
-        target_path = self.target_path_template.format(subject=context.run_variation['subject'], target=context.run_variation['target'])
+        target_path = self.target_path_template.format(subject=context.run_variation['subject'], 
+                                                       target=context.run_variation['target'])
+        subject_command = self.subject_execution_templates[context.run_variation['subject']].format(target_path=target_path, 
+                                                                                                    target=context.run_variation['target'])
 
-        run_command = subject_command.format(target_path=target_path, target=context.run_variation['target'])
-        output.console_log_bold(f'Run command: {run_command}')
-            
-        # Load the command and suspend it but return the PID so that monitors can attach to it.
-        # self.interaction_pid = execute_remote_command(f"bash -c \'{run_command}\' & pid=$!; kill -SIGSTOP $pid; echo $pid")
-        output.console_log_bold(f'Interaction_PID: {self.interaction_pid}')
-        
-        output.console_log_OK(f'Spawned and suspended process on remote.')
+        self.perf_output_file = self.perf_output_file_template.format(run_directory=self.run_dir)
+        self.energibridge_output_file = self.energibridge_output_file_template.format(run_directory=self.run_dir)
+
+        self.energibrige_command = self.energibrige_command_template.format(metric_capturing_interval=self.metric_capturing_interval,
+                                                                            energibridge_output_file=self.energibridge_output_file,
+                                                                            run_command=self.run_command)
+        self.perf_command = self.perf_command_template.format(perf_output_file=self.perf_output_file, 
+                                                              interaction_pid=self.interaction_pid)
+
+        self.run_command = self.run_command_template.format(subject_command=subject_command)
+        self.run_dir = self.run_directory_template.format(results_output_path = self.results_output_path,
+                                                          name = self.name, 
+                                                          run_directory_name = context.run_dir.name)
+
+        # Make directory of run on experimental machine
+        self.machine.execute_remote_command(f'sudo mkdir -p {self.run_dir}')
+
+        output.console_log_bold(f'Run directory on experimental machine: {self.run_dir}')
+        output.console_log_bold(f'Run command: {self.run_command}')
+        output.console_log_OK('Run configuration is successful.')
 
     def start_measurement(self, context: RunnerContext) -> None:
         """Perform any activity required for starting measurements."""
-        output.console_log("Config.start_measurement() called!")
+        output.console_log("Config.start_measurement() called!")        
+        self.machine.execute_remote_command(self.energibrige_command)
 
-        # Create run measurement directory
-        run_dir = f'experiments/{self.name}/{context.run_dir.name}/'
-        # execute_remote_command(f'mkdir -p {run_dir}')
-        output.console_log(run_dir)
-        
-        perf_command_template = 'echo {password} | bash -c \'sudo -S perf stat -x, -o {run_dir}perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p {process_id}\''
+        # Output format '[<process_count>] <PID>' -> PID
+        self.interaction_pid = self.machine.stdout.readline().split()[-1]
+        output.console_log_bold(f'PID of run interaction: {self.interaction_pid}')
 
         # Start perf monitor and attach it to the target process
-        # execute_remote_command(perf_command_template.format(password=getenv('PASSWORD'),
-        #                                                     run_dir=run_dir,
-        #                                                     process_id=self.interaction_pid))
-
-        output.console_log_OK('Monitors are ready to collect.')
-        time.sleep(1)  # Allow time for monitoring tools to attach
+        print(self.perf_command)
+        self.machine.execute_remote_command(self.perf_command)
+        print(self.perf_command)
+        output.console_log_OK('Run has successfuly started.')
 
     def interact(self, context: RunnerContext) -> None:
-        """Perform any interaction with the running target system here, or block here until the target finishes."""
-        output.console_log("Config.interact() called!")
-
-        self.execution_time = time.time()
-        # Resume interaction process once all monitors are ready
-        # execute_remote_command(f"kill -SIGCONT {self.interaction_pid}")
-        self.execution_time = (time.time() - self.execution_time) * 1000 # Convert to milliseconds
-        
-        output.console_log_OK('Run command finished successfully.')
+        pass
 
     def stop_measurement(self, context: RunnerContext) -> None:
-        """Perform any activity here required for stopping measurements."""
-        output.console_log("Config.stop_measurement called!")
-
-        # No need to stop perf as it dies with the interaction process
+        
+        # Output of the energibridge command
+        # Energy consumption in joules: 7.630859375 for 2.0023594 sec of execution.
+        parts = self.machine.stdout.readline().split()
+        self.total_joules = float(parts[4])
+        self.execution_time = float(parts[7])
+        output.console_log_bold(f'Execution Time (seconds): {self.execution_time}')
+        output.console_log_OK('Run has successfuly finished.')
 
     def stop_run(self, context: RunnerContext) -> None:
-        """Perform any activity here required for stopping the run.
-        Activities after stopping the run should also be performed here."""
-        self.interaction_pid = None
-        output.console_log("Config.stop_run() called!")
+        pass
 
     def populate_run_data(self, context: RunnerContext) -> Optional[Dict[str, SupportsStr]]:
         """Parse and process any measurement data here.
@@ -203,26 +242,25 @@ class RunnerConfig:
         Returns a dictionary with keys `self.run_table_model.data_columns` and their values populated"""
         output.console_log("Config.populate_run_data() called!")
 
-        perf_file = f'experiments/{self.name}/{context.run_dir.name}/perf.csv'
-
         # Extract perf output from experimental machine for current run
-        # perf_data = execute_remote_command(f'cat {perf_file}')
-        
-        # Package the received data
-        # perf_output = parse_perf_output(perf_data[2:])
-        perf_output = {}
+        self.machine.execute_remote_command(f'cat {self.perf_output_file}')
+        print(self.machine.stdout.readlines())
+        # perf_output = parse_perf_output(self.machine.stdout.readlines()[2:])
 
         auxiliary_data = {
-            'execution_time' : self.execution_time
+            'execution_time' : self.execution_time,
+            'total_joules' : self.total_joules
         }
 
-        return dict(perf_output.items() | auxiliary_data.items())
+        # TODO Save energibridge data averages
+        self.machine.execute_remote_command(f'cat {self.energibridge_output_file}')
+        print(self.machine.stdout.readlines())
+        # energibridge_output = parse_energi_output(self.machine.stdout.readlines())
+
+        # return dict(perf_output.items() | energibridge_output.items() | auxiliary_data.items())
 
     def after_experiment(self) -> None:
-        """Perform any activity required after stopping the experiment here
-        Invoked only once during the lifetime of the program."""
-
-        output.console_log("Config.after_experiment() called!")
+        self.machine.ssh.close()
 
     # ================================ DO NOT ALTER BELOW THIS LINE ================================
     experiment_path:            Path             = None

@@ -82,8 +82,16 @@ The metrics we collect are as follows:
     - LLC-stores - Count, Percentage
     - LLC-store-misses - Count, Percentage
 
-- [time](https://docs.python.org/3/library/time.html):
+- [Energibridge](https://github.com/tdurieux/EnergiBridge.git):
+    - Per CPU:
+        - Frequency - MHz
+        - Temperature - Celsius
+        - Usage - Percentage
+    - Per Process:
+        - Used Memory - Bytes
+        - Used Swap Memory - Bytes
     - Execution Time - ms
+    - Total Energy - Joules
 
 ## Installation
 
@@ -102,6 +110,16 @@ pip install -r requirements.txt
 ### Experimental Machine
 ```bash
 pip install -r subject_requirements.txt
+
+cd EnergiBridge/
+
+# Must do this on every machine reboot
+sudo chgrp -R <user> /dev/cpu/*/msr
+sudo chmod g+r /dev/cpu/*/msr
+
+cargo build -r
+
+sudo setcap cap_sys_rawio=ep target/release/energibridge
 ```
 
 ## Execution
