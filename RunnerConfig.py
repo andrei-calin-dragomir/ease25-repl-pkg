@@ -12,6 +12,7 @@ from pathlib import Path
 from os.path import dirname, realpath
 
 # Experiment specific imports
+import time
 import paramiko
 from os import getenv
 from dotenv import load_dotenv
@@ -22,20 +23,33 @@ class ExternalMachineAPI:
 
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        self.stdin = None
+        self.stdout = None
+        self.stderr = None
         
         try:
             self.ssh.connect(hostname=getenv('HOSTNAME'), username=getenv('USERNAME'), password=getenv('PASSWORD'))
         except paramiko.SSHException:
             output.console_log_FAIL('Failed to send run command to machine!')
 
-    def execute_remote_command(self, command : str = ''):
+    def execute_remote_command(self, command : str = '', overwrite_channels : bool = True):
         try:
             # Execute the command
-            self.stdin, self.stdout, self.stderr = self.ssh.exec_command(f'echo {getenv('PASSWORD')} | {command}' if command.startswith('sudo') else command)
+            if overwrite_channels:
+                self.stdin, self.stdout, self.stderr = self.ssh.exec_command(f"echo {getenv('PASSWORD')} | {command}" if command.startswith('sudo') else command)
+            else:
+                self.ssh.exec_command(f"echo {getenv('PASSWORD')} | {command}" if command.startswith('sudo') else command)
         except paramiko.SSHException:
             output.console_log_FAIL('Failed to send run command to machine!')
         except TimeoutError:
             output.console_log_FAIL('Timeout reached while waiting for command output.')
+
+    def __del__(self):
+        self.stdin.close()
+        self.stdout.close()
+        self.stderr.close()
+        self.ssh.close()
 
 def parse_perf_output(perf_output):
     # Initialize dictionary with all data_columns as keys and default to None
@@ -108,37 +122,40 @@ class RunnerConfig:
         load_dotenv()
 
         self.run_table_model = None  # Initialized later
+        self.remote_path = "./ease25-repl-pkg"
+
         
         
         self.subject_compilation_templates = {
             'python': '',
-            'nuitka': './venv/bin/python -m nuitka {target_path}/{target}.py --output-dir={target_path}',
+            'nuitka': '{python_venv} -m nuitka {target_path}/{target}.py --output-dir={target_path}',
             'pypy': '',
             'numba': '',
             'codon': ''
         }
 
         self.subject_execution_templates = {
-            'python': './venv/bin/python {target_path}/{target}.py 1000',
+            'python': '{python_venv} {target_path}/{target}.py 1000',
             'nuitka': '{target_path}/{target}.bin 1000',
             'pypy': '',
             'numba': '',
             'codon': ''
         }
 
-        self.target_path_template = './functions/{subject}/{target}'
-        self.perf_output_file_template = '{self.run_dir}/perf.csv'
+        self.python_venv_path = f'{self.remote_path}/venv/bin/python'
+        self.target_path_template = '{repository_path}/functions/{subject}/{target}'
+        self.run_directory_template = '{repository_path}/experiments/{name}/{run_directory_name}'
+        self.perf_output_file_template = '{run_directory}/perf.csv'
         self.energibridge_output_file_template = '{run_directory}/energibridge.csv'
-        self.run_command_template = 'bash -c {subject_command} &'
-        self.run_directory_template = '{results_output_path}/{name}/{run_directory_name}'
 
-        self.energibrige_command_template = 'sudo -S ./EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {energibridge_output_file} {run_command}'
-        self.perf_command_template= 'sudo -S perf stat -x, -o {perf_output_file} -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p {interaction_pid}'
+        self.energibrige_command_template = 'sudo -S {repository_path}/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {energibridge_output_file} {run_command} & pid=$!; echo $pid'
+        self.perf_command_template= 'sudo -S perf stat -x, -o {perf_output_file} -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p '
 
-        self.interaction_pid = None
-        self.perf_monitor = None
-
-        self.machine = ExternalMachineAPI()
+        self.intermediary_results = {
+            'run_result' : None,
+            'total_energy' : None,
+            'execution_time' : None
+        }
 
         """The frequency at which the metric collectors will collect data (in miliseconds)."""
         self.metric_capturing_interval: int = 1000
@@ -149,7 +166,7 @@ class RunnerConfig:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
         # TODO Update Factors
-        factor1 = FactorModel("subject", ['python', 'nuitka']) # 'pypy', 'numba', 'codon', 
+        factor1 = FactorModel("subject", ['python']) # 'nuitka', 'pypy', 'numba', 'codon', 
         factor2 = FactorModel("target", ['spectralnorm'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
@@ -163,75 +180,90 @@ class RunnerConfig:
         return self.run_table_model
 
     def before_experiment(self) -> None:
-        pass
+        output.console_log("Config.before_experiment() called!")
+        # Warmup machine for one minute
+        ssh = ExternalMachineAPI()
+        warmup_command = f'{self.python_venv_path} {self.remote_path}/functions/warmup.py 100000 & pid=$!; echo $pid'
+        ssh.execute_remote_command(warmup_command)
+        time.sleep(60)
+        ssh.execute_remote_command(f'kill -p {ssh.stdout.readline()}')
+
+        # Cooldown machine
+        time.sleep(30)
+        output.console_log_OK("Warmup finished. Experiment is starting now!")
 
     def before_run(self) -> None:
-        """Perform any activity required before starting a run.
-        No context is available here as the run is not yet active (BEFORE RUN)"""
-        output.console_log("Config.before_run() called!")
-
-        # TODO Warmup machine check CHECKLIST
-
+        pass
 
     def start_run(self, context: RunnerContext) -> None:
-        """Perform any activity required for starting the run here.
-        For example, starting the target system to measure.
-        Activities after starting the run should also be performed here."""
         output.console_log("Config.start_run() called!")
         
         target_path = self.target_path_template.format(subject=context.run_variation['subject'], 
-                                                       target=context.run_variation['target'])
+                                                       target=context.run_variation['target'],
+                                                       repository_path=self.remote_path)
         subject_command = self.subject_execution_templates[context.run_variation['subject']].format(target_path=target_path, 
-                                                                                                    target=context.run_variation['target'])
+                                                                                                    target=context.run_variation['target'],
+                                                                                                    python_venv=self.python_venv_path)
 
+        self.run_dir = self.run_directory_template.format(results_output_path = self.results_output_path,
+                                                          name = self.name, 
+                                                          run_directory_name = context.run_dir.name,
+                                                          repository_path=self.remote_path)
+        
         self.perf_output_file = self.perf_output_file_template.format(run_directory=self.run_dir)
         self.energibridge_output_file = self.energibridge_output_file_template.format(run_directory=self.run_dir)
 
         self.energibrige_command = self.energibrige_command_template.format(metric_capturing_interval=self.metric_capturing_interval,
                                                                             energibridge_output_file=self.energibridge_output_file,
-                                                                            run_command=self.run_command)
-        self.perf_command = self.perf_command_template.format(perf_output_file=self.perf_output_file, 
-                                                              interaction_pid=self.interaction_pid)
+                                                                            run_command=subject_command,
+                                                                            repository_path=self.remote_path)
+        self.perf_command = self.perf_command_template.format(perf_output_file=self.perf_output_file)
 
-        self.run_command = self.run_command_template.format(subject_command=subject_command)
-        self.run_dir = self.run_directory_template.format(results_output_path = self.results_output_path,
-                                                          name = self.name, 
-                                                          run_directory_name = context.run_dir.name)
 
         # Make directory of run on experimental machine
-        self.machine.execute_remote_command(f'sudo mkdir -p {self.run_dir}')
+        ssh = ExternalMachineAPI()
+        ssh.execute_remote_command(f'sudo -S mkdir -p {self.run_dir}')
+        del ssh
 
         output.console_log_bold(f'Run directory on experimental machine: {self.run_dir}')
-        output.console_log_bold(f'Run command: {self.run_command}')
+        output.console_log_bold(f'Run command: {self.energibrige_command}')
         output.console_log_OK('Run configuration is successful.')
 
     def start_measurement(self, context: RunnerContext) -> None:
-        """Perform any activity required for starting measurements."""
-        output.console_log("Config.start_measurement() called!")        
-        self.machine.execute_remote_command(self.energibrige_command)
-
-        # Output format '[<process_count>] <PID>' -> PID
-        self.interaction_pid = self.machine.stdout.readline().split()[-1]
-        output.console_log_bold(f'PID of run interaction: {self.interaction_pid}')
+        output.console_log("Config.start_measurement() called!")    
+        ssh = ExternalMachineAPI()    
+        ssh.execute_remote_command(self.energibrige_command)
+        output.console_log(f'Running energibridge with: {self.energibrige_command}\n')
+        self.interaction_pid = ssh.stdout.readline()
 
         # Start perf monitor and attach it to the target process
-        print(self.perf_command)
-        self.machine.execute_remote_command(self.perf_command)
-        print(self.perf_command)
+        output.console_log_bold(f'PID of run interaction: {self.interaction_pid}')
+        perf_command = self.perf_command + str(self.interaction_pid)
+        output.console_log(f'Running perf with: {perf_command}\n')
+        ssh.execute_remote_command(perf_command, overwrite_channels=False)
         output.console_log_OK('Run has successfuly started.')
+        
+        # Read Output of the energibridge command
+        # Result of the command
+        self.intermediary_results['run_result'] = ssh.stdout.readline()
+        output.console_log(f"Output of command: {self.intermediary_results['run_result']}")
+
+        # Energy Bridge Summary format: Energy consumption in joules: 7.630859375 for 2.0023594 sec of execution.
+        next_line = ssh.stdout.readline()
+        output.console_log(f'Summary of energibridge: {next_line}')
+        parts = next_line.split()
+        self.intermediary_results['total_joules'] = float(parts[4])
+        self.intermediary_results['execution_time'] = float(parts[6])
+        del ssh
+
+        output.console_log_bold(f"Execution Time (seconds): {self.intermediary_results['execution_time']}")
+        output.console_log_OK('Run has successfuly finished.')
 
     def interact(self, context: RunnerContext) -> None:
         pass
 
     def stop_measurement(self, context: RunnerContext) -> None:
-        
-        # Output of the energibridge command
-        # Energy consumption in joules: 7.630859375 for 2.0023594 sec of execution.
-        parts = self.machine.stdout.readline().split()
-        self.total_joules = float(parts[4])
-        self.execution_time = float(parts[7])
-        output.console_log_bold(f'Execution Time (seconds): {self.execution_time}')
-        output.console_log_OK('Run has successfuly finished.')
+        pass
 
     def stop_run(self, context: RunnerContext) -> None:
         pass
@@ -243,24 +275,24 @@ class RunnerConfig:
         output.console_log("Config.populate_run_data() called!")
 
         # Extract perf output from experimental machine for current run
-        self.machine.execute_remote_command(f'cat {self.perf_output_file}')
-        print(self.machine.stdout.readlines())
-        # perf_output = parse_perf_output(self.machine.stdout.readlines()[2:])
-
-        auxiliary_data = {
-            'execution_time' : self.execution_time,
-            'total_joules' : self.total_joules
-        }
+        ssh = ExternalMachineAPI()
+        ssh.execute_remote_command(f'cat {self.perf_output_file}')
+        perf_output = parse_perf_output(ssh.stdout.readlines()[2:])
 
         # TODO Save energibridge data averages
-        self.machine.execute_remote_command(f'cat {self.energibridge_output_file}')
-        print(self.machine.stdout.readlines())
-        # energibridge_output = parse_energi_output(self.machine.stdout.readlines())
+        ssh.execute_remote_command(f'cat {self.energibridge_output_file}')
+        print(ssh.stdout.readlines())
+        # energibridge_output = parse_energi_output(ssh.stdout.readlines())
 
-        # return dict(perf_output.items() | energibridge_output.items() | auxiliary_data.items())
+        # Cooldown experimental machine
+        time.sleep(120)
+
+        return dict(perf_output.items()  | self.intermediary_results.items()) # | energibridge_output.items()
 
     def after_experiment(self) -> None:
-        self.machine.ssh.close()
+        ssh = ExternalMachineAPI()
+        ssh.execute_remote_command(f'sudo -S rm -r {self.remote_path}/experiments')
+        del ssh
 
     # ================================ DO NOT ALTER BELOW THIS LINE ================================
     experiment_path:            Path             = None
