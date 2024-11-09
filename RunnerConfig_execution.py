@@ -343,7 +343,7 @@ class RunnerConfig:
             del ssh
             return dict(perf_output.items()  | self.intermediary_results.items()) | energibridge_output.items()
         else:
-            output.console_log_FAIL(f'Unexpected command result:\nExpected: {self.targets_io[context.run_variation['target']]['expected_output']}\nReceived: {self.run_result.strip()}')
+            output.console_log_FAIL(f"Unexpected command result:\nExpected: {self.targets_io[context.run_variation['target']]['expected_output']}\nReceived: {self.run_result.strip()}")
             return None
 
     def after_experiment(self) -> None:
