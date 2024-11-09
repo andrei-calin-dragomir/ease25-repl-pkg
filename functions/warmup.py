@@ -22,4 +22,4 @@ def fibonacci(n):
         return fibonacci(n-1) + fibonacci(n-2)
 
 if __name__ == "__main__":
-    fibonacci(sys.argv[1])
+    fibonacci(int(sys.argv[1]))
