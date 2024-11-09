@@ -59,6 +59,7 @@ NB: The functions on the CLBG were executed on a quad core. Our NUC should be mo
 - [ ] define run_table.csv (function, exec_mode, cpu_usage, execution_time, energy_usage, llc, vms, rss)
 - [ ] randomization
 - [ ] cooling down period of 2 min
+- [ ] warm up run: prior to the experiment run a function to warm up the machine (e.g., fibonacci.py) for 1m and then cool the machine for 30 seconds.
 - [ ] check the conditions of the testbed when idle.
 - [ ] setup compilers to save intermediate files
 - [ ] save the output of the functions
