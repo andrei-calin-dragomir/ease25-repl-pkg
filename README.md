@@ -128,5 +128,5 @@ sudo setcap cap_sys_rawio=ep target/release/energibridge
 
 ```bash
 source ./venv/bin/activate
-python /experiment-runner/experiment-runner/ RunnerConfig_execution.py
+python ./experiment-runner/experiment-runner/ RunnerConfig_execution.py
 ```
