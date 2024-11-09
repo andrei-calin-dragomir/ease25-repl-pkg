@@ -60,8 +60,8 @@ def parse_perf_output(perf_output):
         'LLC-stores_percent': None, 'LLC-store-misses_percent': None
     }
     
-    # Parse each line in the perf output
-    for line in perf_output:
+    # Parse each line in the perf output, skip the header lines
+    for line in perf_output[2:]:
         parts = line.split(',')
         
         # Extract event count, type, and percentage
@@ -81,26 +81,38 @@ def parse_perf_output(perf_output):
     return perf_data
 
 def parse_energibridge_output(energibridge_output):
+    
+    target_columns = {
+        'CPU_USAGE_0', 'CPU_USAGE_1', 'CPU_USAGE_10', 'CPU_USAGE_11', 'CPU_USAGE_12', 'CPU_USAGE_13', 'CPU_USAGE_14', 'CPU_USAGE_15',
+        'CPU_USAGE_2', 'CPU_USAGE_3', 'CPU_USAGE_4', 'CPU_USAGE_5', 'CPU_USAGE_6', 'CPU_USAGE_7', 'CPU_USAGE_8', 'CPU_USAGE_9',
+        'DRAM_ENERGY (J)', 'PACKAGE_ENERGY (J)', 'PP0_ENERGY (J)', 'PP1_ENERGY (J)', 
+        'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP',
+        'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'
+    }
     # Extract the header and rows from the data
     header = energibridge_output[0].strip().split(',')
     rows = [line.strip().split(',') for line in energibridge_output[1:]]
-    
+
+    # Filter header to include only target columns and find their indices
+    filtered_indices = [i for i, col in enumerate(header) if col in target_columns]
+    filtered_header = [header[i] for i in filtered_indices]
+
     # Initialize a dictionary to store sums and counts for each column
-    totals = {col: 0.0 for col in header}
+    totals = {col: 0.0 for col in filtered_header}
     counts = len(rows)  # Total number of data rows
 
-    # Sum each column
+    # Sum each relevant column
     for row in rows:
-        for i, value in enumerate(row):
+        for i in filtered_indices:
             try:
                 # Convert value to float and add to the respective total
-                totals[header[i]] += float(value)
+                totals[header[i]] += float(row[i])
             except ValueError:
                 # Skip if value is not a valid float
                 continue
 
-    # Calculate the average for each column and return as dictionary
-    averages = {col: (totals[col] / counts) for col in header if counts > 0}
+    # Calculate the average for each filtered column and return as dictionary
+    averages = {col: (totals[col] / counts) for col in filtered_header if counts > 0}
     return averages
     
 
@@ -121,7 +133,7 @@ class RunnerConfig:
 
     """The time Experiment Runner will wait after a run completes.
     This can be essential to accommodate for cooldown periods on some systems."""
-    time_between_runs_in_ms:    int             = 1000 # 120000
+    time_between_runs_in_ms:    int             = 120000
 
     # Dynamic configurations can be one-time satisfied here before the program takes the config as-is
     # e.g. Setting some variable based on some criteria
@@ -198,7 +210,7 @@ class RunnerConfig:
         self.perf_output_file_template = '{run_directory}/perf.csv'
         self.energibridge_output_file_template = '{run_directory}/energibridge.csv'
 
-        self.energibrige_command_template = 'sudo -S {repository_path}/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {energibridge_output_file} {run_command} & pid=$!; echo $pid'
+        self.energibrige_command_template = 'sudo -S {repository_path}/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {energibridge_output_file} {run_command}'
         self.perf_command_template= 'sudo -S perf stat -x, -o {perf_output_file} -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p '
 
         self.intermediary_results = {'total_joules' : None, 'execution_time' : None}
@@ -218,7 +230,7 @@ class RunnerConfig:
             exclude_variations=[],
             data_columns=['cache-references', 'cache-misses', 'LLC-loads', 'LLC-load-misses', 'LLC-stores', 'LLC-store-misses',
                           'cache-references_percent', 'cache-misses_percent', 'LLC-loads_percent', 'LLC-load-misses_percent', 'LLC-stores_percent', 'LLC-store-misses_percent',
-                          'CPU_USAGE_0', 'CPU_USAGE_1', 'CPU_USAGE_10', 'CPU_USAGE_11', 'CPU_USAGE_12', 'CPU_USAGE_13', 'CPU_USAGE_14', 'CPU_USAGE_15', 'CPU_USAGE_2', 'CPU_USAGE_3', 'CPU_USAGE_4', 'CPU_USAGE_5', 'CPU_USAGE_6', 'CPU_USAGE_7', 'CPU_USAGE_8', 'CPU_USAGE_9',
+                          'CPU_USAGE_0', 'CPU_USAGE_1', 'CPU_USAGE_2', 'CPU_USAGE_3', 'CPU_USAGE_4', 'CPU_USAGE_5', 'CPU_USAGE_6', 'CPU_USAGE_7', 'CPU_USAGE_8', 'CPU_USAGE_9', 'CPU_USAGE_10', 'CPU_USAGE_11', 'CPU_USAGE_12', 'CPU_USAGE_13', 'CPU_USAGE_14', 'CPU_USAGE_15',
                           'DRAM_ENERGY (J)', 'PACKAGE_ENERGY (J)', 'PP0_ENERGY (J)', 'PP1_ENERGY (J)', 
                           'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP',
                           'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY',
@@ -228,15 +240,15 @@ class RunnerConfig:
 
     def before_experiment(self) -> None:
         output.console_log("Config.before_experiment() called!")
-        # # Warmup machine for one minute
-        # ssh = ExternalMachineAPI()
-        # warmup_command = f'{self.python_venv_path} {self.remote_path}/functions/warmup.py 1000 & pid=$!; echo $pid'
-        # ssh.execute_remote_command(warmup_command)
-        # time.sleep(self.warmup_time)
-        # ssh.execute_remote_command(f'kill {ssh.stdout.readline()}')
+        # Warmup machine for one minute
+        ssh = ExternalMachineAPI()
+        warmup_command = f'{self.python_venv_path} {self.remote_path}/functions/warmup.py 1000 & pid=$!; echo $pid'
+        ssh.execute_remote_command(warmup_command)
+        time.sleep(self.warmup_time)
+        ssh.execute_remote_command(f'kill {ssh.stdout.readline()}')
 
-        # # Cooldown machine
-        # time.sleep(self.post_warmup_cooldown_time)
+        # Cooldown machine
+        time.sleep(self.post_warmup_cooldown_time)
 
         output.console_log_OK("Warmup finished. Experiment is starting now!")
 
@@ -333,17 +345,21 @@ class RunnerConfig:
             ssh = ExternalMachineAPI()
             ssh.execute_remote_command(f'cat {self.perf_output_file}')
             perf_data = ssh.stdout.readlines()
-            perf_output = parse_perf_output(perf_data[2:])
+            print(perf_data)
 
-            # TODO Save energibridge data averages
+            perf_output = parse_perf_output(perf_data)
+            print(perf_output)
+
             ssh.execute_remote_command(f'cat {self.energibridge_output_file}')
             energibridge_data = ssh.stdout.readlines()
-            energibridge_output = parse_energibridge_output(energibridge_data[1:])
-            
+            energibridge_output = parse_energibridge_output(energibridge_data)
             del ssh
-            return dict(perf_output.items()  | self.intermediary_results.items()) | energibridge_output.items()
+
+            return dict(perf_output.items() | self.intermediary_results.items() | energibridge_output.items())
         else:
-            output.console_log_FAIL(f"Unexpected command result:\nExpected: {self.targets_io[context.run_variation['target']]['expected_output']}\nReceived: {self.run_result.strip()}")
+            output.console_log_FAIL(f'''Unexpected command result:\n
+                                    Expected: {self.targets_io[context.run_variation['target']]['expected_output']}\n
+                                    Received: {self.run_result.strip()}''')
             return None
 
     def after_experiment(self) -> None:
