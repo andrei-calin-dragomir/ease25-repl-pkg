@@ -226,7 +226,7 @@ class RunnerConfig:
         factor2 = FactorModel("target", ['spectralnorm', 'binary-trees', 'fasta', 'k-nucleotide', 'n-body', 'mandelbrot', 'fannkuch-redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
-            repetitions=10,
+            repetitions=1,
             exclude_variations=[],
             data_columns=['cache-references', 'cache-misses', 'LLC-loads', 'LLC-load-misses', 'LLC-stores', 'LLC-store-misses',
                           'cache-references_percent', 'cache-misses_percent', 'LLC-loads_percent', 'LLC-load-misses_percent', 'LLC-stores_percent', 'LLC-store-misses_percent',
@@ -243,14 +243,16 @@ class RunnerConfig:
         ssh = ExternalMachineAPI()
 
         # Extract fasta.txt file
-        check_command = f"[ -f ./ease25-repl-pkg/outputs/fasta.txt ] && echo 'exists' || echo 'not_exists'"
+        check_command = f"[ -f ./ease25-repl-pkg/functions/outputs/fasta.txt ] && echo 'exists' || echo 'not_exists'"
         ssh.execute_remote_command(check_command)
         check_status = ssh.stdout.readline()
         if check_status.strip() == 'not_exists':
-            extract_command = 'tar -xf ./ease25-repl-pkg/outputs/fasta.tar.xz -C ./ease25-repl-pkg/outputs/'
+            output.console_log("Unpacking expected results of fasta.txt on experimental machine...")
+            extract_command = 'tar -xf ./ease25-repl-pkg/functions/outputs/fasta.tar.xz -C ./ease25-repl-pkg/functions/outputs/'
             ssh.execute_remote_command(extract_command)
 
         # Warmup machine for one minute
+        output.console_log("Warming up machine using a fibonnaci sequence...")
         warmup_command = f'{self.python_venv_path} ./ease25-repl-pkg/functions/warmup.py 1000 & pid=$!; echo $pid'
         ssh.execute_remote_command(warmup_command)
         time.sleep(self.warmup_time)
@@ -346,10 +348,10 @@ class RunnerConfig:
             ssh.copy_file_from_remote(f'{self.external_run_dir}/{file.strip()}', context.run_dir)
         del ssh
 
-        output_validation_file = f"./functions/outputs/{context.run_variation['target']}.txt"
+        local_output_validation_file = f"./functions/outputs/{context.run_variation['target']}.txt"
         received_output_file = f"{context.run_dir}/output.txt"
         # Check if run results are correct before storing data for the run
-        if compare_files_bash(output_validation_file, received_output_file):
+        if compare_files_bash(local_output_validation_file, received_output_file):
             # Extract perf output from experimental machine for current run
             perf_output = parse_perf_output(f"{context.run_dir}/perf.csv")
             energibridge_output = parse_energibridge_output(f"{context.run_dir}/energibridge.csv")
