@@ -14,8 +14,10 @@ from os.path import dirname, realpath
 # Experiment specific imports
 import time
 import paramiko
+import subprocess
 from os import getenv
 from dotenv import load_dotenv
+from scp import SCPClient
 from collections import defaultdict
 
 class ExternalMachineAPI:
@@ -46,13 +48,20 @@ class ExternalMachineAPI:
         except TimeoutError:
             output.console_log_FAIL('Timeout reached while waiting for command output.')
 
+    def copy_file_from_remote(self, remote_path, local_path):
+        # Create SSH client and SCP client
+        with SCPClient(self.ssh.get_transport()) as scp:
+            # Copy the file from remote to local
+            scp.get(remote_path, local_path)
+        output.console_log_bold(f"Copied {remote_path} to {local_path}")
+
     def __del__(self):
         self.stdin.close()
         self.stdout.close()
         self.stderr.close()
         self.ssh.close()
 
-def parse_perf_output(perf_output):
+def parse_perf_output(file_path):
     # Initialize dictionary with all data_columns as keys and default to None
     perf_data = {
         'cache-references': None, 'cache-misses': None, 'LLC-loads': None, 'LLC-load-misses': None, 'LLC-stores': None, 'LLC-store-misses': None,
@@ -60,8 +69,12 @@ def parse_perf_output(perf_output):
         'LLC-stores_percent': None, 'LLC-store-misses_percent': None
     }
     
+    # Open the file and parse each line
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
     # Parse each line in the perf output, skip the header lines
-    for line in perf_output[2:]:
+    for line in lines[2:]:
         parts = line.split(',')
         
         # Extract event count, type, and percentage
@@ -80,7 +93,7 @@ def parse_perf_output(perf_output):
 
     return perf_data
 
-def parse_energibridge_output(energibridge_output):
+def parse_energibridge_output(file_path):
     
     target_columns = {
         'CPU_USAGE_0', 'CPU_USAGE_1', 'CPU_USAGE_10', 'CPU_USAGE_11', 'CPU_USAGE_12', 'CPU_USAGE_13', 'CPU_USAGE_14', 'CPU_USAGE_15',
@@ -89,9 +102,14 @@ def parse_energibridge_output(energibridge_output):
         'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP',
         'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'
     }
+
+    # Open the file and parse each line
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
     # Extract the header and rows from the data
-    header = energibridge_output[0].strip().split(',')
-    rows = [line.strip().split(',') for line in energibridge_output[1:]]
+    header = lines[0].strip().split(',')
+    rows = [line.strip().split(',') for line in lines[1:]]
 
     # Filter header to include only target columns and find their indices
     filtered_indices = [i for i, col in enumerate(header) if col in target_columns]
@@ -114,7 +132,14 @@ def parse_energibridge_output(energibridge_output):
     # Calculate the average for each filtered column and return as dictionary
     averages = {col: (totals[col] / counts) for col in filtered_header if counts > 0}
     return averages
-    
+
+def compare_files_bash(file1, file2):
+    try:
+        # Run the `diff` command to compare the files
+        result = subprocess.run(["diff", file1, file2], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return result.stdout == b""  # True if no output, False otherwise
+    except subprocess.CalledProcessError:
+        return False  # Files are different or an error occurred 
 
 class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
@@ -172,49 +197,24 @@ class RunnerConfig:
             'pythran'   : None
         }
 
-        self.targets_io = {
-            'spectralnorm'      : {
-                'input'                 : 5500,
-                'expected_output'       : '1.274224153'
-            },
-            'binary-trees'      : {
-                'input'                 : None,
-                'expected_output'       : None
-            },
-            'fasta'             : {
-                'input'                 : None,
-                'expected_output'       : None
-            },
-            'k-nucleotide'      : {
-                'input'                 : None,
-                'expected_output'       : None
-            },
-            'n-body'            : {
-                'input'                 : None,
-                'expected_output'       : None
-            },
-            'mandelbrot'        : {
-                'input'                 : None,
-                'expected_output'       : None
-            },
-            'fannxkuch-redux'   : {
-                'input'                 : None,
-                'expected_output'       : None
-            }
+        self.target_inputs = {
+            'spectralnorm'      : 5500,
+            'binary-trees'      : 21,
+            'fasta'             : 25000000,
+            'k-nucleotide'      : f'0 < ./ease25-repl-pkg/functions/outputs/fasta.txt',
+            'n-body'            : 50000000,
+            'mandelbrot'        : 16000,
+            'fannkuch-redux'    : 12,
         }
 
-        self.remote_path = "./ease25-repl-pkg"
-        self.python_venv_path = f'{self.remote_path}/venv/bin/python'
-        self.target_path_template = '{repository_path}/functions/{subject}/{target}'
-        self.run_directory_template = '{repository_path}/experiments/{name}/{run_directory_name}'
-        self.perf_output_file_template = '{run_directory}/perf.csv'
-        self.energibridge_output_file_template = '{run_directory}/energibridge.csv'
+        self.python_venv_path = f'./ease25-repl-pkg/venv/bin/python'
+        self.target_path_template = './ease25-repl-pkg/functions/scripts/{subject}/{target}'
+        self.run_directory_template = './ease25-repl-pkg/experiments/{name}/{run_directory_name}'
 
-        self.energibrige_command_template = 'sudo -S {repository_path}/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {energibridge_output_file} {run_command}'
-        self.perf_command_template= 'sudo -S perf stat -x, -o {perf_output_file} -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p '
+        self.energibrige_command_template = 'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {run_directory}/energibridge.csv --command_output {run_directory}/output.txt {run_command}'
+        self.perf_command_template= 'sudo -S perf stat -x, -o {run_directory}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p '
 
         self.intermediary_results = {'total_joules' : None, 'execution_time' : None}
-        self.run_result = None
 
         output.console_log("Custom config loaded")
 
@@ -223,7 +223,7 @@ class RunnerConfig:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
         factor1 = FactorModel("subject", ['python']) # 'numba', 'nuitka', 'pypy', 'codon', 'mypyc', 'cython', 'pyston', 'pythran'
-        factor2 = FactorModel("target", ['spectralnorm']) # 'binary-trees', 'fasta', 'k-nucleotide', 'n-body', 'mandelbrot', 'fannxkuch-redux'
+        factor2 = FactorModel("target", ['spectralnorm', 'binary-trees', 'fasta', 'k-nucleotide', 'n-body', 'mandelbrot', 'fannkuch-redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
             repetitions=10,
@@ -240,9 +240,18 @@ class RunnerConfig:
 
     def before_experiment(self) -> None:
         output.console_log("Config.before_experiment() called!")
-        # Warmup machine for one minute
         ssh = ExternalMachineAPI()
-        warmup_command = f'{self.python_venv_path} {self.remote_path}/functions/warmup.py 1000 & pid=$!; echo $pid'
+
+        # Extract fasta.txt file
+        check_command = f"[ -f ./ease25-repl-pkg/outputs/fasta.txt ] && echo 'exists' || echo 'not_exists'"
+        ssh.execute_remote_command(check_command)
+        check_status = ssh.stdout.readline()
+        if check_status.strip() == 'not_exists':
+            extract_command = 'tar -xf ./ease25-repl-pkg/outputs/fasta.tar.xz -C ./ease25-repl-pkg/outputs/'
+            ssh.execute_remote_command(extract_command)
+
+        # Warmup machine for one minute
+        warmup_command = f'{self.python_venv_path} ./ease25-repl-pkg/functions/warmup.py 1000 & pid=$!; echo $pid'
         ssh.execute_remote_command(warmup_command)
         time.sleep(self.warmup_time)
         ssh.execute_remote_command(f'kill {ssh.stdout.readline()}')
@@ -260,37 +269,32 @@ class RunnerConfig:
 
         subject = context.run_variation['subject']
         target = context.run_variation['target']
+
         
         target_path = self.target_path_template.format(subject=subject, 
-                                                       target=target,
-                                                       repository_path=self.remote_path)
-        
+                                                       target=target)
+                
         subject_command = self.subject_execution_templates[subject].format_map(defaultdict(str, {'target_path' : target_path,
                                                                                                  'target' : target,
                                                                                                  'python_venv' : self.python_venv_path,
-                                                                                                 'input' : self.targets_io[target]['input']}))
+                                                                                                 'input' : self.target_inputs[target]}))
 
-        self.run_dir = self.run_directory_template.format(results_output_path = self.results_output_path,
-                                                          name = self.name, 
-                                                          run_directory_name = context.run_dir.name,
-                                                          repository_path=self.remote_path)
-        
-        self.perf_output_file = self.perf_output_file_template.format(run_directory=self.run_dir)
-        self.energibridge_output_file = self.energibridge_output_file_template.format(run_directory=self.run_dir)
+        self.external_run_dir = self.run_directory_template.format(results_output_path = self.results_output_path,
+                                                                   name = self.name,
+                                                                   run_directory_name = context.run_dir.name)
 
         self.energibrige_command = self.energibrige_command_template.format(metric_capturing_interval=self.metric_capturing_interval,
-                                                                            energibridge_output_file=self.energibridge_output_file,
                                                                             run_command=subject_command,
-                                                                            repository_path=self.remote_path)
-        self.perf_command = self.perf_command_template.format(perf_output_file=self.perf_output_file)
+                                                                            run_directory=self.external_run_dir)
+        self.perf_command = self.perf_command_template.format(run_directory=self.external_run_dir)
 
 
         # Make directory of run on experimental machine
         ssh = ExternalMachineAPI()
-        ssh.execute_remote_command(f'sudo -S mkdir -p {self.run_dir}')
+        ssh.execute_remote_command(f'sudo -S mkdir -p {self.external_run_dir}')
         del ssh
 
-        output.console_log(f'Run directory on experimental machine: {self.run_dir}')
+        output.console_log(f'Run directory on experimental machine: {self.external_run_dir}')
         output.console_log(f'Run command: {self.energibrige_command}')
         output.console_log_OK('Run configuration is successful.')
 
@@ -307,11 +311,6 @@ class RunnerConfig:
         output.console_log(f'Running perf with: {perf_command}')
         ssh.execute_remote_command(perf_command, overwrite_channels=False)
         output.console_log_OK('Run has successfuly started.')
-        
-        # Read Output of the energibridge command
-        # Result of the command
-        self.run_result = ssh.stdout.readline()
-        output.console_log(f"Output of command: {self.run_result}")
 
         # Energy Bridge Summary format: Energy consumption in joules: 7.630859375 for 2.0023594 sec of execution.
         next_line = ssh.stdout.readline()
@@ -339,34 +338,30 @@ class RunnerConfig:
         Returns a dictionary with keys `self.run_table_model.data_columns` and their values populated"""
         output.console_log("Config.populate_run_data() called!")
 
-        # Check if run_result is correct before storing data for the run
-        if self.run_result.strip() == self.targets_io[context.run_variation['target']]['expected_output']:
+
+        ssh = ExternalMachineAPI()
+        ssh.execute_remote_command(f'ls {self.external_run_dir}')
+        files = ssh.stdout.readlines()
+        for file in files:
+            ssh.copy_file_from_remote(f'{self.external_run_dir}/{file.strip()}', context.run_dir)
+        del ssh
+
+        output_validation_file = f"./functions/outputs/{context.run_variation['target']}.txt"
+        received_output_file = f"{context.run_dir}/output.txt"
+        # Check if run results are correct before storing data for the run
+        if compare_files_bash(output_validation_file, received_output_file):
             # Extract perf output from experimental machine for current run
-            ssh = ExternalMachineAPI()
-            ssh.execute_remote_command(f'cat {self.perf_output_file}')
-            perf_data = ssh.stdout.readlines()
-            print(perf_data)
-
-            perf_output = parse_perf_output(perf_data)
-            print(perf_output)
-
-            ssh.execute_remote_command(f'cat {self.energibridge_output_file}')
-            energibridge_data = ssh.stdout.readlines()
-            energibridge_output = parse_energibridge_output(energibridge_data)
-            del ssh
-
+            perf_output = parse_perf_output(f"{context.run_dir}/perf.csv")
+            energibridge_output = parse_energibridge_output(f"{context.run_dir}/energibridge.csv")
             return dict(perf_output.items() | self.intermediary_results.items() | energibridge_output.items())
         else:
-            output.console_log_FAIL(f'''Unexpected command result:\n
-                                    Expected: {self.targets_io[context.run_variation['target']]['expected_output']}\n
-                                    Received: {self.run_result.strip()}''')
+            output.console_log_FAIL(f'Target function did not return the expected result.')
             return None
 
     def after_experiment(self) -> None:
-        # ssh = ExternalMachineAPI()
-        # ssh.execute_remote_command(f'sudo -S rm -r {self.remote_path}/experiments')
-        # del ssh
-        pass
+        ssh = ExternalMachineAPI()
+        ssh.execute_remote_command(f'sudo -S rm -r ./ease25-repl-pkg/experiments')
+        del ssh
 
     # ================================ DO NOT ALTER BELOW THIS LINE ================================
     experiment_path:            Path             = None

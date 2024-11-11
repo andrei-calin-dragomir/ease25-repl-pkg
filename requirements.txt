@@ -1,4 +1,5 @@
 # Orchestration specific dependencies
+scp
 paramiko
 python-dotenv
 
