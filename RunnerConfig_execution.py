@@ -7,7 +7,7 @@ from ConfigValidator.Config.Models.OperationType import OperationType
 from ExtendedTyping.Typing import SupportsStr
 from ProgressManager.Output.OutputProcedure import OutputProcedure as output
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
 from os.path import dirname, realpath
 
@@ -34,26 +34,35 @@ class ExternalMachineAPI:
         try:
             self.ssh.connect(hostname=getenv('HOSTNAME'), username=getenv('USERNAME'), password=getenv('PASSWORD'))
         except paramiko.SSHException:
-            output.console_log_FAIL('Failed to send run command to machine!')
+            print('Failed to send run command to machine!')
 
-    def execute_remote_command(self, command : str = '', overwrite_channels : bool = True):
+    def execute_remote_command(self, command : str, arg : Union[int, str] = None, arg_from_file : bool = False, overwrite_channels : bool = True):
         try:
+            # Wrap command to fit paramiko call
+            if arg:
+                if arg_from_file:
+                    wrapped_command = f"{command}< <(echo {getenv('PASSWORD')} && cat {arg})" if command.startswith('sudo') else f'{command} <{arg}'
+                if not arg_from_file:
+                    wrapped_command = f"echo {getenv('PASSWORD')} | {command} {arg}" if command.startswith('sudo') else f'{command} {arg}'
+            else:
+                wrapped_command = f"echo {getenv('PASSWORD')} | {command}" if command.startswith('sudo') else command
+
             # Execute the command
             if overwrite_channels:
-                self.stdin, self.stdout, self.stderr = self.ssh.exec_command(f"echo {getenv('PASSWORD')} | {command}" if command.startswith('sudo') else command)
+                self.stdin, self.stdout, self.stderr = self.ssh.exec_command(wrapped_command)
             else:
-                self.ssh.exec_command(f"echo {getenv('PASSWORD')} | {command}" if command.startswith('sudo') else command)
+                self.ssh.exec_command(wrapped_command)
         except paramiko.SSHException:
-            output.console_log_FAIL('Failed to send run command to machine!')
+            print('Failed to send run command to machine!')
         except TimeoutError:
-            output.console_log_FAIL('Timeout reached while waiting for command output.')
+            print('Timeout reached while waiting for command output.')
 
     def copy_file_from_remote(self, remote_path, local_path):
         # Create SSH client and SCP client
         with SCPClient(self.ssh.get_transport()) as scp:
             # Copy the file from remote to local
-            scp.get(remote_path, local_path)
-        output.console_log_bold(f"Copied {remote_path} to {local_path}")
+            scp.get(remote_path, local_path, recursive=True)
+        print(f"Copied {remote_path} to {local_path}")
 
     def __del__(self):
         self.stdin.close()
@@ -186,8 +195,8 @@ class RunnerConfig:
         self.post_warmup_cooldown_time  : int   = 30    # Seconds
 
         self.subject_execution_templates = {
-            'python'    : '{python_venv} {target_path}/{target}.py {input}',
-            'nuitka'    : '{target_path}/{target}.bin {input}',
+            'python'    : '{python_venv} {target_path}/{target}.py',
+            'nuitka'    : '{target_path}/{target}.bin',
             'pypy'      : None,
             'numba'     : None,
             'codon'     : None,
@@ -201,7 +210,7 @@ class RunnerConfig:
             'spectralnorm'      : 5500,
             'binary-trees'      : 21,
             'fasta'             : 25000000,
-            'k-nucleotide'      : f'0 < ./ease25-repl-pkg/functions/outputs/fasta.txt',
+            'k-nucleotide'      : './ease25-repl-pkg/functions/outputs/fasta.txt',
             'n-body'            : 50000000,
             'mandelbrot'        : 16000,
             'fannkuch-redux'    : 12,
@@ -279,7 +288,7 @@ class RunnerConfig:
         subject_command = self.subject_execution_templates[subject].format_map(defaultdict(str, {'target_path' : target_path,
                                                                                                  'target' : target,
                                                                                                  'python_venv' : self.python_venv_path,
-                                                                                                 'input' : self.target_inputs[target]}))
+                                                                                                }))
 
         self.external_run_dir = self.run_directory_template.format(results_output_path = self.results_output_path,
                                                                    name = self.name,
@@ -302,8 +311,9 @@ class RunnerConfig:
 
     def start_measurement(self, context: RunnerContext) -> None:
         output.console_log("Config.start_measurement() called!")    
-        ssh = ExternalMachineAPI()    
-        ssh.execute_remote_command(self.energibrige_command)
+        ssh = ExternalMachineAPI()
+        ssh.execute_remote_command(self.energibrige_command, arg=self.target_inputs[context.run_variation['target']],
+                                   arg_from_file=True if isinstance(self.target_inputs[context.run_variation['target']], str) else False)
         output.console_log(f'Running energibridge with: {self.energibrige_command}')
         self.interaction_pid = int(ssh.stdout.readline())
 
