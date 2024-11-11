@@ -211,7 +211,7 @@ class RunnerConfig:
         self.target_path_template = './ease25-repl-pkg/functions/scripts/{subject}/{target}'
         self.run_directory_template = './ease25-repl-pkg/experiments/{name}/{run_directory_name}'
 
-        self.energibrige_command_template = 'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {run_directory}/energibridge.csv --command_output {run_directory}/output.txt {run_command}'
+        self.energibrige_command_template = 'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {run_directory}/energibridge.csv --command-output {run_directory}/output.txt {run_command}'
         self.perf_command_template= 'sudo -S perf stat -x, -o {run_directory}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p '
 
         self.intermediary_results = {'total_joules' : None, 'execution_time' : None}
