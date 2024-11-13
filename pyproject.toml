@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "code"
+version = "0.1.0"
+description = "Replication Package for the Green Compiled Python Project"
+authors = ["Vincenzo Stoico <v.stoico@vu.nl>"]
+license = "CC-BY"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+setuptools = "^75.4.0"
+line-profiler = "^4.1.3"
+
+[tool.poetry.group.modes.dependencies]
+nuitka = "^2.4.11"
+numba = "^0.60.0"
+cython = "^3.0.11"
+
+[build-system]
+requires = ["poetry-core", "setuptools", "Cython"]
+build-backend = "poetry.core.masonry.api"

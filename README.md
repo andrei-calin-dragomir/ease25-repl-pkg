@@ -26,7 +26,7 @@ We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) follo
 | [k-nucleotide](https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/knucleotide-python3-8.html)      | 238.78 sec     | 623.448              | mem-bound           |
 | [n-body](https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/nbody-python3-8.html)                  | 8 min          | 19.312               |                     |
 | [mandelbrot](https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/mandelbrot-python3-3.html)         | 14 min         | 19.312               |                     |
-| [fannkuch-redux](https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/fannkuchredux-python3-8.html) | 37 min         | 19.312               | opt:do not consider |
+| [fannxkuch-redux](https://benchmarksgame-team.pages.debian.net/benchmarksgame/program/fannkuchredux-python3-8.html) | 37 min         | 19.312               | opt:do not consider |
 
 ### Subjects (Execution Modes)
 
@@ -61,7 +61,7 @@ NB: The functions on the CLBG were executed on a quad core. Our NUC should be mo
 - [x] cooling down period of 2 min
 - [x] warm up run: prior to the experiment run a function to warm up the machine (e.g., fibonacci.py) for 1m and then cool the machine for 30 seconds.
 - [x] save the output of the functions
-- [x] add validation of result for each function
+- [ ] add validation of result for each function
 - [ ] check the conditions of the testbed when idle.
 - [ ] setup compilers to save intermediate files
 - [ ] check Hyperthreading OFF
@@ -110,24 +110,17 @@ source ./venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file containing the credentials for the experimental machine
-
-Example:
-```conf
-HOSTNAME='255.255.255.255'
-USERNAME='user'
-PASSWORD='1234'
-```
-
 ### Experimental Machine
 ```bash
-# pip install -r subject_requirements.txt
-
+pip install -r subject_requirements.txt
 cd EnergiBridge/
+
+# Must do this on every machine reboot
 sudo chgrp -R <user> /dev/cpu/*/msr
 sudo chmod g+r /dev/cpu/*/msr
+
 cargo build -r
-# Must do this on every machine reboot
+
 sudo setcap cap_sys_rawio=ep target/release/energibridge
 ```
 
