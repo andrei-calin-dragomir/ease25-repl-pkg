@@ -30,17 +30,22 @@ We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) follo
 
 ### Subjects (Execution Modes)
 
-1. Codon
-2. Nuitka
-3. PyPy
-4. Numba
-5. Cython
-6. Pyston
-7. mypyc
-8. pythran
-9. Native (CPython)
+| Subject | Type   | Description | Notes |
+| ------- | ------ | ----------- | ----- |
+| PyPy    | JIT    | compiles    | pypy3 |
+| Nuitka  | AOT    | compiles    |       |
+| Cython  | AOT    | compiles    |       |
+| CPython | Inter. | ok          |       |
 
-Not Considered: {Mojo, Taichi, Regaz}`
+
+| Subject     | Type | Description | Notes                          |
+| ----------- | ---- | ----------- | ------------------------------ |
+| Numba       | JIT  | compiles -  | Need Major Rework of the Code  |
+| Pyston-lite | JIT  |             |                                |
+| mypyc       | AOT  | compiles -  |                                |
+| pythran     | AOT  |             | needs directive                |
+| codon       | AOT  | compiles    | Needs major rework of the code |
+| pyjion      | JIT  |             |                                |
 
 note: the modes are different: interpreted, python DSL, AOT, JIT. We describe in the discussion section but not part of this study.
 

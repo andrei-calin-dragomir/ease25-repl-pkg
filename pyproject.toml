@@ -2,7 +2,7 @@
 name = "code"
 version = "0.1.0"
 description = "Replication Package for the Green Compiled Python Project"
-authors = ["Vincenzo Stoico <v.stoico@vu.nl>"]
+authors = ["Vincenzo Stoico <v.stoico@vu.nl>", "Andrei Calin Dragomir <a.dragomir@student.vu.nl>"]
 license = "CC-BY"
 readme = "README.md"
 
