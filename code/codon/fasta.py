@@ -1,5 +1,3 @@
-
-
 # The Computer Language Benchmarks Game
 #   https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
 #
@@ -84,3 +82,5 @@ def main(n):
 
 ##if __name__ == '__main__':
 ##  main(int(argv[1]) if len(argv) > 1 else 1000)
+
+main(1000)
