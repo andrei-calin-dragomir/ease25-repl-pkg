@@ -199,7 +199,7 @@ class RunnerConfig:
             'cython'    : '{target_path}/functions/{target}', # TODO 
             'cpython'   : None, # TODO 
             'pypy'      : None, # TODO
-            'nuitka'    : '{target_path}/{target}.bin', # TODO Compile all functions
+            'nuitka'    : '{target_path}/{target}/{target}.bin',
             'numba'     : None,
             'codon'     : None,
             'mypyc'     : None,
