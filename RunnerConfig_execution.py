@@ -196,12 +196,13 @@ class RunnerConfig:
 
         self.subject_execution_templates = {
             'python'    : '{python_venv} {target_path}/{target}.py',
-            'nuitka'    : '{target_path}/{target}.bin',
-            'pypy'      : None,
+            'cython'    : '{target_path}/functions/{target}', # TODO 
+            'cpython'   : None, # TODO 
+            'pypy'      : None, # TODO
+            'nuitka'    : '{target_path}/{target}.bin', # TODO Compile all functions
             'numba'     : None,
             'codon'     : None,
             'mypyc'     : None,
-            'cython'    : None,
             'pyston'    : None,
             'pythran'   : None
         }
@@ -210,14 +211,14 @@ class RunnerConfig:
             'spectralnorm'      : 5500,
             'binary-trees'      : 21,
             'fasta'             : 25000000,
-            'k-nucleotide'      : './ease25-repl-pkg/functions/outputs/fasta.txt',
+            'k-nucleotide'      : './ease25-repl-pkg/code/outputs/fasta.txt',
             'n-body'            : 50000000,
             'mandelbrot'        : 16000,
             'fannkuch-redux'    : 12,
         }
 
         self.python_venv_path = f'./ease25-repl-pkg/venv/bin/python'
-        self.target_path_template = './ease25-repl-pkg/functions/scripts/{subject}/{target}'
+  
         self.run_directory_template = './ease25-repl-pkg/experiments/{name}/{run_directory_name}'
 
         self.energibrige_command_template = 'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {run_directory}/energibridge.csv --command-output {run_directory}/output.txt {run_command}'
@@ -231,7 +232,7 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("subject", ['python']) # 'numba', 'nuitka', 'pypy', 'codon', 'mypyc', 'cython', 'pyston', 'pythran'
+        factor1 = FactorModel("subject", ['python']) # 'cython', 'cpython', 'nuitka', 'pypy',  NOT YET TESTED: 'numba', 'codon', 'mypyc', 'pyston', 'pythran'
         factor2 = FactorModel("target", ['spectralnorm', 'binary-trees', 'fasta', 'k-nucleotide', 'n-body', 'mandelbrot', 'fannkuch-redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
@@ -252,17 +253,17 @@ class RunnerConfig:
         ssh = ExternalMachineAPI()
 
         # Extract fasta.txt file
-        check_command = f"[ -f ./ease25-repl-pkg/functions/outputs/fasta.txt ] && echo 'exists' || echo 'not_exists'"
+        check_command = f"[ -f ./ease25-repl-pkg/code/outputs/fasta.txt ] && echo 'exists' || echo 'not_exists'"
         ssh.execute_remote_command(check_command)
         check_status = ssh.stdout.readline()
         if check_status.strip() == 'not_exists':
             output.console_log("Unpacking expected results of fasta.txt on experimental machine...")
-            extract_command = 'tar -xf ./ease25-repl-pkg/functions/outputs/fasta.tar.xz -C ./ease25-repl-pkg/functions/outputs/'
+            extract_command = 'tar -xf ./ease25-repl-pkg/code/outputs/fasta.tar.xz -C ./ease25-repl-pkg/code/outputs/'
             ssh.execute_remote_command(extract_command)
 
         # Warmup machine for one minute
         output.console_log("Warming up machine using a fibonnaci sequence...")
-        warmup_command = f'{self.python_venv_path} ./ease25-repl-pkg/functions/warmup.py 1000 & pid=$!; echo $pid'
+        warmup_command = f'{self.python_venv_path} ./ease25-repl-pkg/code/warmup.py 1000 & pid=$!; echo $pid'
         ssh.execute_remote_command(warmup_command)
         time.sleep(self.warmup_time)
         ssh.execute_remote_command(f'kill {ssh.stdout.readline()}')
@@ -281,9 +282,7 @@ class RunnerConfig:
         subject = context.run_variation['subject']
         target = context.run_variation['target']
 
-        
-        target_path = self.target_path_template.format(subject=subject, 
-                                                       target=target)
+        target_path = f'./ease25-repl-pkg/code/{subject}'
                 
         subject_command = self.subject_execution_templates[subject].format_map(defaultdict(str, {'target_path' : target_path,
                                                                                                  'target' : target,
@@ -358,7 +357,7 @@ class RunnerConfig:
             ssh.copy_file_from_remote(f'{self.external_run_dir}/{file.strip()}', context.run_dir)
         del ssh
 
-        local_output_validation_file = f"./functions/outputs/{context.run_variation['target']}.txt"
+        local_output_validation_file = f"./code/outputs/{context.run_variation['target']}.txt"
         received_output_file = f"{context.run_dir}/output.txt"
         # Check if run results are correct before storing data for the run
         if compare_files_bash(local_output_validation_file, received_output_file):
