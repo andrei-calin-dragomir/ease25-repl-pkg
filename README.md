@@ -67,9 +67,10 @@ NB: The functions on the CLBG were executed on a quad core. Our NUC should be mo
 - [x] cooling down period of 2 min
 - [x] warm up run: prior to the experiment run a function to warm up the machine (e.g., fibonacci.py) for 1m and then cool the machine for 30 seconds.
 - [x] save the output of the functions
-- [ ] add validation of result for each function
-- [ ] check the conditions of the testbed when idle.
+- [x] add validation of result for each function
 - [ ] setup compilers to save intermediate files
+- [ ] compile and save all scripts
+- [ ] check the conditions of the testbed when idle.
 - [ ] check Hyperthreading OFF
 - [ ] check Turbo boost OFF (Linux Governor Powersave)
 
@@ -107,32 +108,23 @@ The metrics we collect are as follows:
 ```bash
 git clone --recursive https://github.com/andrei-calin-dragomir/ease25-repl-pkg.git
 cd ./ease25-repl-pkg
-python3 -m venv venv
-source ./venv/bin/activate
-```
-
-### Orchestrator Machine
-```bash
-pip install -r requirements.txt
+poetry install
 ```
 
 ### Experimental Machine
 ```bash
-pip install -r subject_requirements.txt
 cd EnergiBridge/
 
 # Must do this on every machine reboot
 sudo chgrp -R <user> /dev/cpu/*/msr
 sudo chmod g+r /dev/cpu/*/msr
-
 cargo build -r
-
 sudo setcap cap_sys_rawio=ep target/release/energibridge
 ```
 
 ## Execution
 
 ```bash
-source ./venv/bin/activate
+poetry shell
 python ./experiment-runner/experiment-runner/ RunnerConfig_execution.py
 ```
