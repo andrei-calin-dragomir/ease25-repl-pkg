@@ -37,14 +37,13 @@ We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) follo
 | Cython  | AOT    |             |       |
 | CPython | Inter. |             |       |
 | Codon   | AOT    |             |       |
-
+| mypyc   | AOT    |             |       |
 
 
 | Subject     | Type | Description | Notes                          |
 | ----------- | ---- | ----------- | ------------------------------ |
 | Numba       | JIT  | compiles -  | Need Major Rework of the Code  |
 | Pyston-lite | JIT  |             |                                |
-| mypyc       | AOT  | compiles -  |                                |
 | pythran     | AOT  |             | needs directive                |
 | pyjion      | JIT  |             |                                |
 
