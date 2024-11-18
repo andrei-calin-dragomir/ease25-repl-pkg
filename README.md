@@ -32,10 +32,12 @@ We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) follo
 
 | Subject | Type   | Description | Notes |
 | ------- | ------ | ----------- | ----- |
-| PyPy    | JIT    | compiles    | pypy3 |
-| Nuitka  | AOT    | compiles    |       |
-| Cython  | AOT    | compiles    |       |
-| CPython | Inter. | ok          |       |
+| PyPy    | JIT    |             | pypy3 |
+| Nuitka  | AOT    |             |       |
+| Cython  | AOT    |             |       |
+| CPython | Inter. |             |       |
+| Codon   | AOT    |             |       |
+
 
 
 | Subject     | Type | Description | Notes                          |
@@ -44,7 +46,6 @@ We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) follo
 | Pyston-lite | JIT  |             |                                |
 | mypyc       | AOT  | compiles -  |                                |
 | pythran     | AOT  |             | needs directive                |
-| codon       | AOT  | compiles    | Needs major rework of the code |
 | pyjion      | JIT  |             |                                |
 
 note: the modes are different: interpreted, python DSL, AOT, JIT. We describe in the discussion section but not part of this study.

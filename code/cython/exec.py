@@ -14,9 +14,9 @@ import k_nucleotide as kn
 #fa.main(1000) # fasta
 #
 ## k_nucleotide
-#with open('../functions/knucleotide_input.txt', 'r') as file:
-#    content = file.read()
-#    kn.main(content.splitlines())
+with open('../functions/knucleotide_input.txt', 'r') as file:
+    content = file.read()
+    kn.main(content.splitlines())
 
 mb.main(500) # mandelbrot
 #nb.nbody(500) # nbody
