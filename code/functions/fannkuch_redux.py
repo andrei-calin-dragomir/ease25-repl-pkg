@@ -64,4 +64,3 @@ def fannkuch(n):
 #
 #n = int(argv[1]) if len(argv) > 1 else 7   
 #print("Pfannkuchen(%i) = %i" % (n, fannkuch(n))) 
-

@@ -134,4 +134,3 @@ def nbody(n):
 #
 #if __name__ == '__main__':
 #  main(int(sys.argv[1]))
-nbody(600)

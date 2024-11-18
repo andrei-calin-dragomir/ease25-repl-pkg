@@ -41,5 +41,3 @@ def main(size):
             cout(bytes([byte_acc]))
             bit = 128
             byte_acc = 0
-
-main(500)

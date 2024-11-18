@@ -3,7 +3,6 @@
 #
 # contributed by Isaac Gouy
 
-
 import sys 
 
 class Tree:
@@ -19,13 +18,13 @@ class Tree:
     return 1 if (self.left == None) \
         else 1 + self.left.node_count() + self.right.node_count()
         
-  def clear(self):
-    if self.left != None:
-      self.left.clear()
-      del self.left
-      self.right.clear()
-      del self.right  
-        
+  def clear(self):                  
+    if self.left is not None:
+        self.left.clear()
+        self.left = None
+        self.right.clear()
+        self.right = None  
+
 def main(n):
   MIN_DEPTH = 4  
   max_depth = (MIN_DEPTH + 2) if (MIN_DEPTH + 2 > n) else n
@@ -54,5 +53,5 @@ def count(depth):
   t.clear(); 
   return c;   
       
-if __name__ == '__main__':
-  main( int(sys.argv[1]) if len(sys.argv) > 1 else 10 ) 
+#if __name__ == '__main__':
+  #main( int(sys.argv[1]) if len(sys.argv) > 1 else 10 )
