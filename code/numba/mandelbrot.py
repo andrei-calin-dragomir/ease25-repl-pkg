@@ -4,7 +4,7 @@
 # contributed by Tupteq
 # 2to3 - fixed by Daniele Varrazzo, fixed by Isaac Gouy
 
-import sys
+#import sys
 from numba import njit, uint8
 
 @njit
