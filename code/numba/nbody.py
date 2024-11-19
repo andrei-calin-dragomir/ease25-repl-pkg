@@ -1,16 +1,22 @@
-# The Computer Language Benchmarks Game
-# https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
-#
-# Naive transliteration from Michael Ferguson's Chapel program
-# contributed by Isaac Gouy
-
+from numba import njit, float64
+from numba.experimental import jitclass
 from math import sqrt
-import sys 
 
 PI = 3.14159265358979323
 SOLAR_MASS = 4 * PI * PI
 DAYS_PER_YEAR = 365.24
 
+spec = [
+    ('x', float64),
+    ('y', float64),
+    ('z', float64),
+    ('vx', float64),
+    ('vy', float64),
+    ('vz', float64),
+    ('mass', float64)
+]
+
+@jitclass(spec)
 class Body:
   def __init__(self, x, y, z, vx, vy, vz, mass):
     self.x = x
@@ -20,19 +26,21 @@ class Body:
     self.vy = vy 
     self.vz = vz  
     self.mass = mass   
-    
+
+@njit
 def offset_momentum(bodies):
-  px, py, pz = 0.0, 0.0, 0.0
-  for b in bodies:
-    px += b.vx * b.mass
-    py += b.vy * b.mass
-    pz += b.vz * b.mass
-    
-  b = bodies[0]
-  b.vx = - px / SOLAR_MASS
-  b.vy = - py / SOLAR_MASS
-  b.vz = - pz / SOLAR_MASS
-        
+  px, py, pz = 0.0, 0.0, 0.0        
+  for b in bodies:                  
+    px += b.vx * b.mass             
+    py += b.vy * b.mass             
+    pz += b.vz * b.mass             
+                                    
+  b = bodies[0]                     
+  b.vx = - px / SOLAR_MASS          
+  b.vy = - py / SOLAR_MASS          
+  b.vz = - pz / SOLAR_MASS          
+
+@njit
 def energy(bodies):
   e = 0.0  
   num_bodies = len(bodies)  
@@ -47,7 +55,8 @@ def energy(bodies):
       sq = dx * dx + dy * dy + dz * dz 
       e -= (b.mass * bodies[j].mass) / sqrt(sq)   
   return e    
-    
+
+@njit
 def advance(bodies, dt):
   num_bodies = len(bodies)
   for i in range(num_bodies): 
@@ -72,7 +81,8 @@ def advance(bodies, dt):
     bodies[i].x += bodies[i].vx * dt  
     bodies[i].y += bodies[i].vy * dt   
     bodies[i].z += bodies[i].vz * dt  
-   
+
+@njit
 def nbody(n):
   bodies = [
     # sun
@@ -124,13 +134,11 @@ def nbody(n):
     ]    
    
   offset_momentum(bodies)   
-  print("%.9f" % energy(bodies))   
+  print(float(int(energy(bodies) * 10**9)) / 10**9)
+
   for i in range(n):
     advance(bodies, 0.01)
-  print("%.9f" % energy(bodies)) 
-   
-#def main(n):
-#  nbody(n)
-#
-#if __name__ == '__main__':
-#  main(int(sys.argv[1]))
+
+  print(float(int(energy(bodies) * 10**9)) / 10**9)
+
+nbody(500)
