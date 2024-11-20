@@ -17,7 +17,6 @@ def seq_lines(lines):
 
     #lines = []
     lines = List.empty_list(types.unicode_type)
-
     for line in lines:
         if line.startswith(">"):
             break
@@ -57,8 +56,7 @@ def main(lines):
         for kv in sorted_freq(base, seq):
             print(kv[0], float(int(kv[1]) * 10**3) / 10**3)
            #print("%s %.3f" % (kv[0], kv[1]))
-
-        print()      
+        print()
       
     for code in "GGT", "GGTA", "GGTATT", \
             "GGTATTTTAATT", "GGTATTTTAATTTATAGT":     
