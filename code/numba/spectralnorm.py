@@ -33,17 +33,10 @@ def main(n):
   for i in range(n): u.append(1)
   for i in range(n): v.append(0)
 
-  #u=[1]*n
-  #v=[0]*n
-
   for i in range(10):
     eval_AtA_times_u(n,u,v)
     eval_AtA_times_u(n,v,u)
 
   vBv=vv=0
   for i in range(n): vBv+=u[i]*v[i]; vv+=v[i]*v[i]
-
   print(float(int(sqrt(vBv/vv) * 10**9)) / 10**9)
-  #print("%.9f" % sqrt(vBv/vv))
-
-main(5)

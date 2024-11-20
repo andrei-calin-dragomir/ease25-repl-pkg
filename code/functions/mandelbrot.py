@@ -3,12 +3,11 @@
 #
 # contributed by Tupteq
 # 2to3 - fixed by Daniele Varrazzo, fixed by Isaac Gouy
-
 import sys
 
-def main(size):
+def main():
     cout = sys.stdout.buffer.write
-    #size = int(sys.argv[1])
+    size = int(sys.argv[1])
     xr_size = range(size)
     xr_iter = range(50)
     bit = 128
@@ -41,3 +40,5 @@ def main(size):
             cout(bytes([byte_acc]))
             bit = 128
             byte_acc = 0
+
+main()

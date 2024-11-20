@@ -3,6 +3,7 @@
 #
 # contributed by Isaac Gouy
 
+
 import sys 
 
 class Tree:
@@ -53,5 +54,5 @@ def count(depth):
   t.clear(); 
   return c;   
       
-#if __name__ == '__main__':
-  #main( int(sys.argv[1]) if len(sys.argv) > 1 else 10 )
+if __name__ == '__main__':
+  main( int(sys.argv[1]) if len(sys.argv) > 1 else 10 ) 

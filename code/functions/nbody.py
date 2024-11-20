@@ -3,7 +3,6 @@
 #
 # Naive transliteration from Michael Ferguson's Chapel program
 # contributed by Isaac Gouy
-
 from math import sqrt
 import sys 
 
@@ -129,8 +128,8 @@ def nbody(n):
     advance(bodies, 0.01)
   print("%.9f" % energy(bodies)) 
    
-#def main(n):
-#  nbody(n)
-#
-#if __name__ == '__main__':
-#  main(int(sys.argv[1]))
+def main(n):
+  nbody(n)
+
+if __name__ == '__main__':
+  main(int(sys.argv[1]))

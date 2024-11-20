@@ -4,13 +4,14 @@
 #   Naive transliteration from bearophile's program
 #   contributed by Isaac Gouy 
 
-# from sys import stdin
-def seq_lines(lines):
-    for line in lines:
+from sys import stdin
+
+def seq_lines():
+    for line in stdin:
         if line.startswith(">THREE"):
             break
     lines = []
-    for line in lines:
+    for line in stdin:
         if line.startswith(">"):
             break
         lines.append( line[:-1] )       
@@ -26,7 +27,7 @@ def base_counts(bases, seq):
         else:
             counts[nucleo] = 1
     return counts               
-
+    
 def sorted_freq(bases, seq):  
     keysValues = base_counts(bases, seq).items()
     size = len(seq) + 1 - bases    
@@ -36,11 +37,11 @@ def sorted_freq(bases, seq):
 def specific_count(code, seq):  
     return base_counts(len(code), seq).get(code,0)   
     
-def main(lines):
-    lines = seq_lines(lines)
+def main():
+    lines = seq_lines()
     seq = "".join([s.upper() for s in lines])
         
-    for base in 1,2:
+    for base in 1,2:        
         for kv in sorted_freq(base, seq):
            print("%s %.3f" % (kv[0], kv[1]))
         print()      
@@ -49,6 +50,5 @@ def main(lines):
             "GGTATTTTAATT", "GGTATTTTAATTTATAGT":     
         print("%d\t%s" % (specific_count(code, seq), code))       
  
-
-#if __name__ == '__main__':
-#    main()
+if __name__ == '__main__':
+  main()

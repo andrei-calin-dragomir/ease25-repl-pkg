@@ -14,7 +14,6 @@ def fannkuch(n):
       while r != 1: count[r-1] = r; r -= 1  
       while i < n: perm[i] = perm1[i]; i += 1  
         
-      # Count flips and update max and checksum
       f = 0
       k = perm[0]  
       while k != 0:
@@ -32,7 +31,6 @@ def fannkuch(n):
       else: 
          checksum -= f
    
-      # Use incremental change to generate another permutation   
       more = True
       while more:  
          if r == n:

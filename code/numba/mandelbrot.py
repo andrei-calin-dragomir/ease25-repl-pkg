@@ -1,22 +1,14 @@
-# The Computer Language Benchmarks Game
-# https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
-#
-# contributed by Tupteq
-# 2to3 - fixed by Daniele Varrazzo, fixed by Isaac Gouy
-
-#import sys
 from numba import njit, uint8
 
 @njit
 def main(size):
-    #cout = sys.stdout.buffer.write
     xr_size = range(size)
     xr_iter = range(50)
     bit = 128
     byte_acc = 0
 
     print((f"P4\n{size} {size}\n"))
-    # cout(("P4\n%d %d\n" % (size, size)).encode('ascii'))
+
     size = float(size)
     for y in xr_size:
         fy = 2j * y / size - 1j
@@ -34,15 +26,11 @@ def main(size):
             if bit > 1:
                 bit >>= 1
             else:
-                print(uint8(byte_acc))
-                #cout(bytes([byte_acc]))
+                print(byte_acc)
                 bit = 128
                 byte_acc = 0
 
         if bit != 128:
-            print(uint8(byte_acc))
-            #cout(bytes([byte_acc]))
+            print(byte_acc)
             bit = 128
             byte_acc = 0
-
-main(200)

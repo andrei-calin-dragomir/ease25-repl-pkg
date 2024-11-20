@@ -4,7 +4,6 @@
 #   Naive transliteration from Rex Kerr's Scala program
 #   contributed by Isaac Gouy 
 #
-
 def fannkuch(n):
    perm1 = [0] * n   
    for i in range(n): perm1[i] = i      
@@ -60,7 +59,8 @@ def fannkuch(n):
 
    return flips      
 
-#from sys import argv   
-#
-#n = int(argv[1]) if len(argv) > 1 else 7   
-#print("Pfannkuchen(%i) = %i" % (n, fannkuch(n))) 
+from sys import argv   
+
+n = int(argv[1]) if len(argv) > 1 else 7   
+print("Pfannkuchen(%i) = %i" % (n, fannkuch(n)))
+

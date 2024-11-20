@@ -5,7 +5,7 @@
 #   contributed by Isaac Gouy 
 #
 
-#from sys import argv
+from sys import argv
 
 IM = 139968
 IA = 3877
@@ -80,5 +80,5 @@ def main(n):
    print(">THREE Homo sapiens frequency")     
    randomFasta(HomoSapiens, HomoSapiens_P, n*5)                
 
-##if __name__ == '__main__':
-##  main(int(argv[1]) if len(argv) > 1 else 1000)
+if __name__ == '__main__':
+  main(int(argv[1]) if len(argv) > 1 else 1000)

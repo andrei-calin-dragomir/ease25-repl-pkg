@@ -1,9 +1,3 @@
-# The Computer Language Benchmarks Game
-# https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
-#
-# Naive transliteration from Michael Ferguson's Chapel program
-# contributed by Isaac Gouy
-
 from math import sqrt
 import sys 
 
@@ -83,10 +77,8 @@ def advance(bodies, dt):
    
 def nbody(n):
   bodies = [
-    # sun
     Body(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, SOLAR_MASS),
     
-    # jupiter
     Body(
       4.84143144246472090e+00,
       -1.16032004402742839e+00,
@@ -97,7 +89,6 @@ def nbody(n):
       9.54791938424326609e-04 * SOLAR_MASS
       ),
     
-    # saturn
     Body(
       8.34336671824457987e+00,
       4.12479856412430479e+00,
@@ -108,7 +99,6 @@ def nbody(n):
       2.85885980666130812e-04 * SOLAR_MASS 
       ),    
     
-    # uranus
     Body(
       1.28943695621391310e+01,
       -1.51111514016986312e+01,
@@ -119,7 +109,6 @@ def nbody(n):
       4.36624404335156298e-05 * SOLAR_MASS 
       ),    
     
-    # neptune
     Body(
       1.53796971148509165e+01,
       -2.59193146099879641e+01,
@@ -132,19 +121,7 @@ def nbody(n):
     ]    
    
   offset_momentum(bodies)   
-  #print("%.9f" % energy(bodies))   
-  print(f"{energy(bodies):.9f}")
-
+  print(float(int(energy(bodies) * 10**9)) / 10**9)
   for i in range(n):
     advance(bodies, 0.01)
-
-  print(f"{energy(bodies):.9f}")
-  #print("%.9f" % energy(bodies)) 
-   
-#def main(n):
-#  nbody(n)
-#
-#if __name__ == '__main__':
-#  main(int(sys.argv[1]))
-
-nbody(600)
+  print(float(int(energy(bodies) * 10**9)) / 10**9)

@@ -3,7 +3,7 @@ from setuptools import setup
 from mypyc.build import mypycify
 
 def build():
-    paths = glob.glob('../functions/*.py', recursive=True) 
+    paths = glob.glob('../python/*.py', recursive=True) 
     paths = [p for p in paths if 'binary' not in p] + ['binary_trees.py']
 
     setup(

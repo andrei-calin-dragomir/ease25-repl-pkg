@@ -1,19 +1,10 @@
-# The Computer Language Benchmarks Game
-# https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
-#
-# contributed by Tupteq
-# 2to3 - fixed by Daniele Varrazzo, fixed by Isaac Gouy
-import sys
-
-def main():
-    cout = sys.stdout.buffer.write
-    size = int(sys.argv[1])
+def main(size):
     xr_size = range(size)
     xr_iter = range(50)
     bit = 128
     byte_acc = 0
 
-    cout(("P4\n%d %d\n" % (size, size)).encode('ascii'))
+    print((f"P4\n{size} {size}\n"))
 
     size = float(size)
     for y in xr_size:
@@ -32,13 +23,11 @@ def main():
             if bit > 1:
                 bit >>= 1
             else:
-                cout(bytes([byte_acc]))
+                print(byte_acc)
                 bit = 128
                 byte_acc = 0
 
         if bit != 128:
-            cout(bytes([byte_acc]))
+            print(byte_acc)
             bit = 128
             byte_acc = 0
-
-main()

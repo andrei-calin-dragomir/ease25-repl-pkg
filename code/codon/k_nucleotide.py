@@ -1,9 +1,3 @@
-# The Computer Language Benchmarks Game
-#   https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
-#
-#   Naive transliteration from bearophile's program
-#   contributed by Isaac Gouy 
-
 def seq_lines(lines):
     for line in lines:
         if line.startswith(">THREE"):
@@ -41,19 +35,9 @@ def main(lines):
         
     for base in 1,2:
         for kv in sorted_freq(base, seq):
-           #print("%s %.3f" % (kv[0], kv[1]))
-            print(f"{(kv[0], kv[1])}:.3f")
-        print()      
-      
+            print(kv[0], float(int(kv[1]) * 10**3) / 10**3)
+        print()
+
     for code in "GGT", "GGTA", "GGTATT", \
             "GGTATTTTAATT", "GGTATTTTAATTTATAGT":     
-        print(f"{specific_count(code, seq)}\t{code}")
-        #print("%d\t%s" % (specific_count(code, seq), code))       
- 
-
-#if __name__ == '__main__':
-#    main()
-
-#with open('../functions/knucleotide_input.txt', 'r') as file:
-#    content = file.read()
-#    main(content.splitlines())
+        print(specific_count(code, seq),'\t',code)
