@@ -18,7 +18,7 @@ for py_file in "$SOURCE_DIR"/*.py; do
 
     # Build the Python file using codon
     echo "Building $py_file..."
-    codon build -exe "$py_file" -o "build/${py_file%.*}"
+    codon build -release -exe "$py_file" -o "build/${py_file%.*}"
 
     # Check if the build was successful
     if [ $? -eq 0 ]; then

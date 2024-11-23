@@ -11,7 +11,7 @@ Initial design involves two benchmarks:
 
 ### Control Group
 
-We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) following these criteria to mitigate any threat to validity related to code characteristics and to discover if they can influence our results.
+We selected 7 functions from the Computer Language Benchmark Game (CLBG) following these criteria to mitigate any threat to validity related to code characteristics and to discover if they can influence our results.
 
 1. well-defined developer profile
 2. no parallelism (single-thread) 
@@ -30,15 +30,15 @@ We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) follo
 
 ### Subjects (Execution Modes)
 
-| Subject | Type   | Description | Notes |
-| ------- | ------ | ----------- | ----- |
-| PyPy    | JIT    |             | pypy3 |
-| Nuitka  | AOT    |             |       |
-| Cython  | AOT    |             |       |
-| CPython | Inter. |             |       |
-| Codon   | AOT    |             |       |
-| mypyc   | AOT    |             |       |
-| Numba   | JIT    |             |       |
+| Subject | Type   | Description | Notes | Build                                                                    |
+| ------- | ------ | ----------- | ----- | ------------------------------------------------------------------       | 
+| PyPy    | JIT    |             | pypy3 | `pypy --opt=2`                                                           |
+| Nuitka  | AOT    |             |       | `python -m nuitka --standalone --python-flag=no_site your_script.py`     |
+| Cython  | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
+| CPython | Inter. |             |       |                                                                          |
+| Codon   | AOT    |             |       | `codon build -release -exe "$py_file" -o "build/${py_file%.*}"`          |
+| mypyc   | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
+| Numba   | JIT    |             |       |  no flags, just decorator                                                |
 
 
 #### To Test 

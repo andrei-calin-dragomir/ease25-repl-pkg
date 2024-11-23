@@ -3,12 +3,15 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
-        "name": "k_nucleotide",
+        "extra_compile_args": [
+            "-O3"
+        ],
+        "name": "k_nucleotide.py_ext",
         "sources": [
             "../python/k_nucleotide.py"
         ]
     },
-    "module_name": "k_nucleotide"
+    "module_name": "k_nucleotide.py_ext"
 }
 END: Cython Metadata */
 
@@ -1228,8 +1231,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__k_nucleotide
-#define __PYX_HAVE_API__k_nucleotide
+#define __PYX_HAVE__k_nucleotide__py_ext
+#define __PYX_HAVE_API__k_nucleotide__py_ext
 /* Early includes */
 #ifdef _OPENMP
 #include <omp.h>
@@ -2343,14 +2346,14 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* #### Code section: module_declarations ### */
 
-/* Module declarations from "k_nucleotide" */
+/* Module declarations from "k_nucleotide.py_ext" */
 /* #### Code section: typeinfo ### */
 /* #### Code section: before_global_var ### */
-#define __Pyx_MODULE_NAME "k_nucleotide"
-extern int __pyx_module_is_main_k_nucleotide;
-int __pyx_module_is_main_k_nucleotide = 0;
+#define __Pyx_MODULE_NAME "k_nucleotide.py_ext"
+extern int __pyx_module_is_main_k_nucleotide__py_ext;
+int __pyx_module_is_main_k_nucleotide__py_ext = 0;
 
-/* Implementation of "k_nucleotide" */
+/* Implementation of "k_nucleotide.py_ext" */
 /* #### Code section: global_var ### */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_print;
@@ -2393,18 +2396,18 @@ static const char __pyx_k_input_lines[] = "input_lines";
 static const char __pyx_k_sorted_freq[] = "sorted_freq";
 static const char __pyx_k_GGTATTTTAATT[] = "GGTATTTTAATT";
 static const char __pyx_k_is_coroutine[] = "_is_coroutine";
-static const char __pyx_k_k_nucleotide[] = "k_nucleotide";
 static const char __pyx_k_specific_count[] = "specific_count";
 static const char __pyx_k_GGTATTTTAATTTATAGT[] = "GGTATTTTAATTTATAGT";
 static const char __pyx_k_asyncio_coroutines[] = "asyncio.coroutines";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
+static const char __pyx_k_k_nucleotide_py_ext[] = "k_nucleotide.py_ext";
 static const char __pyx_k_home_xeder_Projects_ease25_repl[] = "/home/xeder/Projects/ease25-repl-pkg/code/control_group/python/k_nucleotide.py";
 /* #### Code section: decls ### */
-static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_lines); /* proto */
-static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_bases, PyObject *__pyx_v_seq); /* proto */
-static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_bases, PyObject *__pyx_v_seq); /* proto */
-static PyObject *__pyx_pf_12k_nucleotide_6specific_count(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_code, PyObject *__pyx_v_seq); /* proto */
-static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lines); /* proto */
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_seq_lines(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_lines); /* proto */
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_2base_counts(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_bases, PyObject *__pyx_v_seq); /* proto */
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_4sorted_freq(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_bases, PyObject *__pyx_v_seq); /* proto */
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_6specific_count(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_code, PyObject *__pyx_v_seq); /* proto */
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_8main(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lines); /* proto */
 /* #### Code section: late_includes ### */
 /* #### Code section: module_state ### */
 typedef struct {
@@ -2458,7 +2461,7 @@ typedef struct {
   PyObject *__pyx_n_s_is_coroutine;
   PyObject *__pyx_n_s_items;
   PyObject *__pyx_n_s_join;
-  PyObject *__pyx_n_s_k_nucleotide;
+  PyObject *__pyx_n_s_k_nucleotide_py_ext;
   PyObject *__pyx_n_s_keysValues;
   PyObject *__pyx_n_s_kv;
   PyObject *__pyx_n_s_line;
@@ -2563,7 +2566,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_is_coroutine);
   Py_CLEAR(clear_module_state->__pyx_n_s_items);
   Py_CLEAR(clear_module_state->__pyx_n_s_join);
-  Py_CLEAR(clear_module_state->__pyx_n_s_k_nucleotide);
+  Py_CLEAR(clear_module_state->__pyx_n_s_k_nucleotide_py_ext);
   Py_CLEAR(clear_module_state->__pyx_n_s_keysValues);
   Py_CLEAR(clear_module_state->__pyx_n_s_kv);
   Py_CLEAR(clear_module_state->__pyx_n_s_line);
@@ -2646,7 +2649,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_is_coroutine);
   Py_VISIT(traverse_module_state->__pyx_n_s_items);
   Py_VISIT(traverse_module_state->__pyx_n_s_join);
-  Py_VISIT(traverse_module_state->__pyx_n_s_k_nucleotide);
+  Py_VISIT(traverse_module_state->__pyx_n_s_k_nucleotide_py_ext);
   Py_VISIT(traverse_module_state->__pyx_n_s_keysValues);
   Py_VISIT(traverse_module_state->__pyx_n_s_kv);
   Py_VISIT(traverse_module_state->__pyx_n_s_line);
@@ -2739,7 +2742,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_is_coroutine __pyx_mstate_global->__pyx_n_s_is_coroutine
 #define __pyx_n_s_items __pyx_mstate_global->__pyx_n_s_items
 #define __pyx_n_s_join __pyx_mstate_global->__pyx_n_s_join
-#define __pyx_n_s_k_nucleotide __pyx_mstate_global->__pyx_n_s_k_nucleotide
+#define __pyx_n_s_k_nucleotide_py_ext __pyx_mstate_global->__pyx_n_s_k_nucleotide_py_ext
 #define __pyx_n_s_keysValues __pyx_mstate_global->__pyx_n_s_keysValues
 #define __pyx_n_s_kv __pyx_mstate_global->__pyx_n_s_kv
 #define __pyx_n_s_line __pyx_mstate_global->__pyx_n_s_line
@@ -2780,22 +2783,22 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_codeobj__16 __pyx_mstate_global->__pyx_codeobj__16
 /* #### Code section: module_code ### */
 
-/* "k_nucleotide.py":1
+/* "../python/k_nucleotide.py":1
  * def seq_lines(input_lines):             # <<<<<<<<<<<<<<
  *     i = 0
  *     for line in input_lines:
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_12k_nucleotide_1seq_lines(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_1seq_lines(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_12k_nucleotide_1seq_lines = {"seq_lines", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_1seq_lines, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_12k_nucleotide_1seq_lines(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_12k_nucleotide_6py_ext_1seq_lines = {"seq_lines", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_6py_ext_1seq_lines, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_1seq_lines(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -2865,11 +2868,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
     }
   }
-  __Pyx_AddTraceback("k_nucleotide.seq_lines", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.seq_lines", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_12k_nucleotide_seq_lines(__pyx_self, __pyx_v_input_lines);
+  __pyx_r = __pyx_pf_12k_nucleotide_6py_ext_seq_lines(__pyx_self, __pyx_v_input_lines);
 
   /* function exit code */
   {
@@ -2882,7 +2885,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_lines) {
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_seq_lines(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_input_lines) {
   PyObject *__pyx_v_i = NULL;
   PyObject *__pyx_v_line = NULL;
   PyObject *__pyx_v_lines = NULL;
@@ -2902,7 +2905,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("seq_lines", 1);
 
-  /* "k_nucleotide.py":2
+  /* "../python/k_nucleotide.py":2
  * def seq_lines(input_lines):
  *     i = 0             # <<<<<<<<<<<<<<
  *     for line in input_lines:
@@ -2911,7 +2914,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_i = __pyx_int_0;
 
-  /* "k_nucleotide.py":3
+  /* "../python/k_nucleotide.py":3
  * def seq_lines(input_lines):
  *     i = 0
  *     for line in input_lines:             # <<<<<<<<<<<<<<
@@ -2973,7 +2976,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
     __Pyx_XDECREF_SET(__pyx_v_line, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "k_nucleotide.py":4
+    /* "../python/k_nucleotide.py":4
  *     i = 0
  *     for line in input_lines:
  *         i += 1             # <<<<<<<<<<<<<<
@@ -2985,7 +2988,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
     __Pyx_DECREF_SET(__pyx_v_i, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "k_nucleotide.py":5
+    /* "../python/k_nucleotide.py":5
  *     for line in input_lines:
  *         i += 1
  *         if line.startswith(">THREE"):             # <<<<<<<<<<<<<<
@@ -3020,7 +3023,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (__pyx_t_8) {
 
-      /* "k_nucleotide.py":6
+      /* "../python/k_nucleotide.py":6
  *         i += 1
  *         if line.startswith(">THREE"):
  *             break             # <<<<<<<<<<<<<<
@@ -3029,7 +3032,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
  */
       goto __pyx_L4_break;
 
-      /* "k_nucleotide.py":5
+      /* "../python/k_nucleotide.py":5
  *     for line in input_lines:
  *         i += 1
  *         if line.startswith(">THREE"):             # <<<<<<<<<<<<<<
@@ -3038,7 +3041,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
  */
     }
 
-    /* "k_nucleotide.py":3
+    /* "../python/k_nucleotide.py":3
  * def seq_lines(input_lines):
  *     i = 0
  *     for line in input_lines:             # <<<<<<<<<<<<<<
@@ -3053,7 +3056,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
   goto __pyx_L6_for_end;
   __pyx_L6_for_end:;
 
-  /* "k_nucleotide.py":8
+  /* "../python/k_nucleotide.py":8
  *             break
  * 
  *     lines = []             # <<<<<<<<<<<<<<
@@ -3065,7 +3068,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
   __pyx_v_lines = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "k_nucleotide.py":9
+  /* "../python/k_nucleotide.py":9
  * 
  *     lines = []
  *     for line in input_lines[i:]:             # <<<<<<<<<<<<<<
@@ -3130,7 +3133,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
     __Pyx_XDECREF_SET(__pyx_v_line, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "k_nucleotide.py":10
+    /* "../python/k_nucleotide.py":10
  *     lines = []
  *     for line in input_lines[i:]:
  *         if line.startswith(">"):             # <<<<<<<<<<<<<<
@@ -3165,7 +3168,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     if (__pyx_t_8) {
 
-      /* "k_nucleotide.py":11
+      /* "../python/k_nucleotide.py":11
  *     for line in input_lines[i:]:
  *         if line.startswith(">"):
  *             break             # <<<<<<<<<<<<<<
@@ -3174,7 +3177,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
  */
       goto __pyx_L8_break;
 
-      /* "k_nucleotide.py":10
+      /* "../python/k_nucleotide.py":10
  *     lines = []
  *     for line in input_lines[i:]:
  *         if line.startswith(">"):             # <<<<<<<<<<<<<<
@@ -3183,7 +3186,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
  */
     }
 
-    /* "k_nucleotide.py":12
+    /* "../python/k_nucleotide.py":12
  *         if line.startswith(">"):
  *             break
  *         lines.append( line[:-1] )             # <<<<<<<<<<<<<<
@@ -3195,7 +3198,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
     __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_lines, __pyx_t_1); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 12, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "k_nucleotide.py":9
+    /* "../python/k_nucleotide.py":9
  * 
  *     lines = []
  *     for line in input_lines[i:]:             # <<<<<<<<<<<<<<
@@ -3210,7 +3213,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
   goto __pyx_L10_for_end;
   __pyx_L10_for_end:;
 
-  /* "k_nucleotide.py":13
+  /* "../python/k_nucleotide.py":13
  *             break
  *         lines.append( line[:-1] )
  *     return lines             # <<<<<<<<<<<<<<
@@ -3222,7 +3225,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
   __pyx_r = __pyx_v_lines;
   goto __pyx_L0;
 
-  /* "k_nucleotide.py":1
+  /* "../python/k_nucleotide.py":1
  * def seq_lines(input_lines):             # <<<<<<<<<<<<<<
  *     i = 0
  *     for line in input_lines:
@@ -3234,7 +3237,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("k_nucleotide.seq_lines", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.seq_lines", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_i);
@@ -3245,7 +3248,7 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
   return __pyx_r;
 }
 
-/* "k_nucleotide.py":15
+/* "../python/k_nucleotide.py":15
  *     return lines
  * 
  * def base_counts(bases, seq):             # <<<<<<<<<<<<<<
@@ -3254,15 +3257,15 @@ static PyObject *__pyx_pf_12k_nucleotide_seq_lines(CYTHON_UNUSED PyObject *__pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_12k_nucleotide_3base_counts(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_3base_counts(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_12k_nucleotide_3base_counts = {"base_counts", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_3base_counts, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_12k_nucleotide_3base_counts(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_12k_nucleotide_6py_ext_3base_counts = {"base_counts", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_6py_ext_3base_counts, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_3base_counts(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -3347,11 +3350,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
     }
   }
-  __Pyx_AddTraceback("k_nucleotide.base_counts", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.base_counts", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_12k_nucleotide_2base_counts(__pyx_self, __pyx_v_bases, __pyx_v_seq);
+  __pyx_r = __pyx_pf_12k_nucleotide_6py_ext_2base_counts(__pyx_self, __pyx_v_bases, __pyx_v_seq);
 
   /* function exit code */
   {
@@ -3364,7 +3367,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_bases, PyObject *__pyx_v_seq) {
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_2base_counts(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_bases, PyObject *__pyx_v_seq) {
   PyObject *__pyx_v_counts = NULL;
   PyObject *__pyx_v_size = NULL;
   PyObject *__pyx_v_i = NULL;
@@ -3383,7 +3386,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("base_counts", 1);
 
-  /* "k_nucleotide.py":16
+  /* "../python/k_nucleotide.py":16
  * 
  * def base_counts(bases, seq):
  *     counts = {}             # <<<<<<<<<<<<<<
@@ -3395,7 +3398,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
   __pyx_v_counts = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "k_nucleotide.py":17
+  /* "../python/k_nucleotide.py":17
  * def base_counts(bases, seq):
  *     counts = {}
  *     size = len(seq) + 1 - bases             # <<<<<<<<<<<<<<
@@ -3411,7 +3414,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
   __pyx_v_size = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "k_nucleotide.py":18
+  /* "../python/k_nucleotide.py":18
  *     counts = {}
  *     size = len(seq) + 1 - bases
  *     for i in range(size):             # <<<<<<<<<<<<<<
@@ -3476,7 +3479,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "k_nucleotide.py":19
+    /* "../python/k_nucleotide.py":19
  *     size = len(seq) + 1 - bases
  *     for i in range(size):
  *         nucleo = seq[i: i + bases]             # <<<<<<<<<<<<<<
@@ -3491,7 +3494,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
     __Pyx_XDECREF_SET(__pyx_v_nucleo, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "k_nucleotide.py":20
+    /* "../python/k_nucleotide.py":20
  *     for i in range(size):
  *         nucleo = seq[i: i + bases]
  *         if nucleo in counts:             # <<<<<<<<<<<<<<
@@ -3501,7 +3504,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
     __pyx_t_6 = (__Pyx_PyDict_ContainsTF(__pyx_v_nucleo, __pyx_v_counts, Py_EQ)); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 20, __pyx_L1_error)
     if (__pyx_t_6) {
 
-      /* "k_nucleotide.py":21
+      /* "../python/k_nucleotide.py":21
  *         nucleo = seq[i: i + bases]
  *         if nucleo in counts:
  *             counts[nucleo] += 1             # <<<<<<<<<<<<<<
@@ -3519,7 +3522,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-      /* "k_nucleotide.py":20
+      /* "../python/k_nucleotide.py":20
  *     for i in range(size):
  *         nucleo = seq[i: i + bases]
  *         if nucleo in counts:             # <<<<<<<<<<<<<<
@@ -3529,7 +3532,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
       goto __pyx_L5;
     }
 
-    /* "k_nucleotide.py":23
+    /* "../python/k_nucleotide.py":23
  *             counts[nucleo] += 1
  *         else:
  *             counts[nucleo] = 1             # <<<<<<<<<<<<<<
@@ -3541,7 +3544,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
     }
     __pyx_L5:;
 
-    /* "k_nucleotide.py":18
+    /* "../python/k_nucleotide.py":18
  *     counts = {}
  *     size = len(seq) + 1 - bases
  *     for i in range(size):             # <<<<<<<<<<<<<<
@@ -3551,7 +3554,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "k_nucleotide.py":24
+  /* "../python/k_nucleotide.py":24
  *         else:
  *             counts[nucleo] = 1
  *     return counts             # <<<<<<<<<<<<<<
@@ -3563,7 +3566,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
   __pyx_r = __pyx_v_counts;
   goto __pyx_L0;
 
-  /* "k_nucleotide.py":15
+  /* "../python/k_nucleotide.py":15
  *     return lines
  * 
  * def base_counts(bases, seq):             # <<<<<<<<<<<<<<
@@ -3577,7 +3580,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("k_nucleotide.base_counts", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.base_counts", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_counts);
@@ -3589,7 +3592,7 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
   return __pyx_r;
 }
 
-/* "k_nucleotide.py":26
+/* "../python/k_nucleotide.py":26
  *     return counts
  * 
  * def sorted_freq(bases, seq):             # <<<<<<<<<<<<<<
@@ -3598,15 +3601,15 @@ static PyObject *__pyx_pf_12k_nucleotide_2base_counts(CYTHON_UNUSED PyObject *__
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_12k_nucleotide_5sorted_freq(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_5sorted_freq(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_12k_nucleotide_5sorted_freq = {"sorted_freq", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_5sorted_freq, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_12k_nucleotide_5sorted_freq(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_12k_nucleotide_6py_ext_5sorted_freq = {"sorted_freq", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_6py_ext_5sorted_freq, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_5sorted_freq(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -3691,11 +3694,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
     }
   }
-  __Pyx_AddTraceback("k_nucleotide.sorted_freq", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.sorted_freq", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_12k_nucleotide_4sorted_freq(__pyx_self, __pyx_v_bases, __pyx_v_seq);
+  __pyx_r = __pyx_pf_12k_nucleotide_6py_ext_4sorted_freq(__pyx_self, __pyx_v_bases, __pyx_v_seq);
 
   /* function exit code */
   {
@@ -3708,7 +3711,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_bases, PyObject *__pyx_v_seq) {
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_4sorted_freq(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_bases, PyObject *__pyx_v_seq) {
   PyObject *__pyx_v_keysValues = NULL;
   PyObject *__pyx_v_size = NULL;
   PyObject *__pyx_7genexpr__pyx_v_kv = NULL;
@@ -3727,7 +3730,7 @@ static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("sorted_freq", 1);
 
-  /* "k_nucleotide.py":27
+  /* "../python/k_nucleotide.py":27
  * 
  * def sorted_freq(bases, seq):
  *     keysValues = base_counts(bases, seq).items()             # <<<<<<<<<<<<<<
@@ -3786,7 +3789,7 @@ static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__
   __pyx_v_keysValues = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "k_nucleotide.py":28
+  /* "../python/k_nucleotide.py":28
  * def sorted_freq(bases, seq):
  *     keysValues = base_counts(bases, seq).items()
  *     size = len(seq) + 1 - bases             # <<<<<<<<<<<<<<
@@ -3802,7 +3805,7 @@ static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__
   __pyx_v_size = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "k_nucleotide.py":31
+  /* "../python/k_nucleotide.py":31
  *     #sorted_ =  sorted(keysValues, reverse=True, key=lambda kv: kv[1])
  *     #return [ (kv[0], 100.0 * kv[1] / size) for kv in sorted_ ]
  *     return [ (kv[0], 100.0 * kv[1] / size) for kv in keysValues ]             # <<<<<<<<<<<<<<
@@ -3900,7 +3903,7 @@ static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "k_nucleotide.py":26
+  /* "../python/k_nucleotide.py":26
  *     return counts
  * 
  * def sorted_freq(bases, seq):             # <<<<<<<<<<<<<<
@@ -3915,7 +3918,7 @@ static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_AddTraceback("k_nucleotide.sorted_freq", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.sorted_freq", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_keysValues);
@@ -3926,7 +3929,7 @@ static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__
   return __pyx_r;
 }
 
-/* "k_nucleotide.py":33
+/* "../python/k_nucleotide.py":33
  *     return [ (kv[0], 100.0 * kv[1] / size) for kv in keysValues ]
  * 
  * def specific_count(code, seq):             # <<<<<<<<<<<<<<
@@ -3935,15 +3938,15 @@ static PyObject *__pyx_pf_12k_nucleotide_4sorted_freq(CYTHON_UNUSED PyObject *__
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_12k_nucleotide_7specific_count(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_7specific_count(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_12k_nucleotide_7specific_count = {"specific_count", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_7specific_count, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_12k_nucleotide_7specific_count(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_12k_nucleotide_6py_ext_7specific_count = {"specific_count", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_6py_ext_7specific_count, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_7specific_count(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4028,11 +4031,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
     }
   }
-  __Pyx_AddTraceback("k_nucleotide.specific_count", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.specific_count", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_12k_nucleotide_6specific_count(__pyx_self, __pyx_v_code, __pyx_v_seq);
+  __pyx_r = __pyx_pf_12k_nucleotide_6py_ext_6specific_count(__pyx_self, __pyx_v_code, __pyx_v_seq);
 
   /* function exit code */
   {
@@ -4045,7 +4048,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_12k_nucleotide_6specific_count(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_code, PyObject *__pyx_v_seq) {
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_6specific_count(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_code, PyObject *__pyx_v_seq) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4060,7 +4063,7 @@ static PyObject *__pyx_pf_12k_nucleotide_6specific_count(CYTHON_UNUSED PyObject 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("specific_count", 1);
 
-  /* "k_nucleotide.py":34
+  /* "../python/k_nucleotide.py":34
  * 
  * def specific_count(code, seq):
  *     return base_counts(len(code), seq).get(code,0)             # <<<<<<<<<<<<<<
@@ -4125,7 +4128,7 @@ static PyObject *__pyx_pf_12k_nucleotide_6specific_count(CYTHON_UNUSED PyObject 
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "k_nucleotide.py":33
+  /* "../python/k_nucleotide.py":33
  *     return [ (kv[0], 100.0 * kv[1] / size) for kv in keysValues ]
  * 
  * def specific_count(code, seq):             # <<<<<<<<<<<<<<
@@ -4140,7 +4143,7 @@ static PyObject *__pyx_pf_12k_nucleotide_6specific_count(CYTHON_UNUSED PyObject 
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("k_nucleotide.specific_count", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.specific_count", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4148,7 +4151,7 @@ static PyObject *__pyx_pf_12k_nucleotide_6specific_count(CYTHON_UNUSED PyObject 
   return __pyx_r;
 }
 
-/* "k_nucleotide.py":36
+/* "../python/k_nucleotide.py":36
  *     return base_counts(len(code), seq).get(code,0)
  * 
  * def main(lines):             # <<<<<<<<<<<<<<
@@ -4157,15 +4160,15 @@ static PyObject *__pyx_pf_12k_nucleotide_6specific_count(CYTHON_UNUSED PyObject 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_12k_nucleotide_9main(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_9main(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_12k_nucleotide_9main = {"main", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_9main, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_12k_nucleotide_9main(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_12k_nucleotide_6py_ext_9main = {"main", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_12k_nucleotide_6py_ext_9main, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_12k_nucleotide_6py_ext_9main(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4235,11 +4238,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
     }
   }
-  __Pyx_AddTraceback("k_nucleotide.main", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.main", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_12k_nucleotide_8main(__pyx_self, __pyx_v_lines);
+  __pyx_r = __pyx_pf_12k_nucleotide_6py_ext_8main(__pyx_self, __pyx_v_lines);
 
   /* function exit code */
   {
@@ -4252,7 +4255,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lines) {
+static PyObject *__pyx_pf_12k_nucleotide_6py_ext_8main(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lines) {
   PyObject *__pyx_v_seq = NULL;
   PyObject *__pyx_v_base = NULL;
   PyObject *__pyx_v_kv = NULL;
@@ -4276,7 +4279,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
   __Pyx_RefNannySetupContext("main", 0);
   __Pyx_INCREF(__pyx_v_lines);
 
-  /* "k_nucleotide.py":37
+  /* "../python/k_nucleotide.py":37
  * 
  * def main(lines):
  *     lines = seq_lines(lines)             # <<<<<<<<<<<<<<
@@ -4310,7 +4313,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
   __Pyx_DECREF_SET(__pyx_v_lines, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "k_nucleotide.py":38
+  /* "../python/k_nucleotide.py":38
  * def main(lines):
  *     lines = seq_lines(lines)
  *     seq = "".join([s.upper() for s in lines])             # <<<<<<<<<<<<<<
@@ -4415,7 +4418,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
   __pyx_v_seq = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "k_nucleotide.py":40
+  /* "../python/k_nucleotide.py":40
  *     seq = "".join([s.upper() for s in lines])
  * 
  *     for base in 1,2:             # <<<<<<<<<<<<<<
@@ -4435,7 +4438,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
     __Pyx_XDECREF_SET(__pyx_v_base, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "k_nucleotide.py":41
+    /* "../python/k_nucleotide.py":41
  * 
  *     for base in 1,2:
  *         for kv in sorted_freq(base, seq):             # <<<<<<<<<<<<<<
@@ -4522,7 +4525,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
       __Pyx_XDECREF_SET(__pyx_v_kv, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "k_nucleotide.py":42
+      /* "../python/k_nucleotide.py":42
  *     for base in 1,2:
  *         for kv in sorted_freq(base, seq):
  *             print(kv[0], float(int(kv[1]) * 10**3) / 10**3)             # <<<<<<<<<<<<<<
@@ -4556,7 +4559,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "k_nucleotide.py":41
+      /* "../python/k_nucleotide.py":41
  * 
  *     for base in 1,2:
  *         for kv in sorted_freq(base, seq):             # <<<<<<<<<<<<<<
@@ -4566,7 +4569,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "k_nucleotide.py":43
+    /* "../python/k_nucleotide.py":43
  *         for kv in sorted_freq(base, seq):
  *             print(kv[0], float(int(kv[1]) * 10**3) / 10**3)
  *         print()             # <<<<<<<<<<<<<<
@@ -4577,7 +4580,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "k_nucleotide.py":40
+    /* "../python/k_nucleotide.py":40
  *     seq = "".join([s.upper() for s in lines])
  * 
  *     for base in 1,2:             # <<<<<<<<<<<<<<
@@ -4587,7 +4590,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "k_nucleotide.py":45
+  /* "../python/k_nucleotide.py":45
  *         print()
  * 
  *     for code in "GGT", "GGTA", "GGTATT", \             # <<<<<<<<<<<<<<
@@ -4607,7 +4610,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
     __Pyx_XDECREF_SET(__pyx_v_code, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "k_nucleotide.py":47
+    /* "../python/k_nucleotide.py":47
  *     for code in "GGT", "GGTA", "GGTATT", \
  *             "GGTATTTTAATT", "GGTATTTTAATTTATAGT":
  *         print(specific_count(code, seq),'\t',code)             # <<<<<<<<<<<<<<
@@ -4652,7 +4655,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "k_nucleotide.py":45
+    /* "../python/k_nucleotide.py":45
  *         print()
  * 
  *     for code in "GGT", "GGTA", "GGTATT", \             # <<<<<<<<<<<<<<
@@ -4662,7 +4665,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "k_nucleotide.py":36
+  /* "../python/k_nucleotide.py":36
  *     return base_counts(len(code), seq).get(code,0)
  * 
  * def main(lines):             # <<<<<<<<<<<<<<
@@ -4679,7 +4682,7 @@ static PyObject *__pyx_pf_12k_nucleotide_8main(CYTHON_UNUSED PyObject *__pyx_sel
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_AddTraceback("k_nucleotide.main", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("k_nucleotide.py_ext.main", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_seq);
@@ -4733,7 +4736,7 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_is_coroutine, __pyx_k_is_coroutine, sizeof(__pyx_k_is_coroutine), 0, 0, 1, 1},
     {&__pyx_n_s_items, __pyx_k_items, sizeof(__pyx_k_items), 0, 0, 1, 1},
     {&__pyx_n_s_join, __pyx_k_join, sizeof(__pyx_k_join), 0, 0, 1, 1},
-    {&__pyx_n_s_k_nucleotide, __pyx_k_k_nucleotide, sizeof(__pyx_k_k_nucleotide), 0, 0, 1, 1},
+    {&__pyx_n_s_k_nucleotide_py_ext, __pyx_k_k_nucleotide_py_ext, sizeof(__pyx_k_k_nucleotide_py_ext), 0, 0, 1, 1},
     {&__pyx_n_s_keysValues, __pyx_k_keysValues, sizeof(__pyx_k_keysValues), 0, 0, 1, 1},
     {&__pyx_n_s_kv, __pyx_k_kv, sizeof(__pyx_k_kv), 0, 0, 1, 1},
     {&__pyx_n_s_line, __pyx_k_line, sizeof(__pyx_k_line), 0, 0, 1, 1},
@@ -4771,7 +4774,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "k_nucleotide.py":12
+  /* "../python/k_nucleotide.py":12
  *         if line.startswith(">"):
  *             break
  *         lines.append( line[:-1] )             # <<<<<<<<<<<<<<
@@ -4782,7 +4785,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_slice__2);
   __Pyx_GIVEREF(__pyx_slice__2);
 
-  /* "k_nucleotide.py":40
+  /* "../python/k_nucleotide.py":40
  *     seq = "".join([s.upper() for s in lines])
  * 
  *     for base in 1,2:             # <<<<<<<<<<<<<<
@@ -4793,7 +4796,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
-  /* "k_nucleotide.py":45
+  /* "../python/k_nucleotide.py":45
  *         print()
  * 
  *     for code in "GGT", "GGTA", "GGTATT", \             # <<<<<<<<<<<<<<
@@ -4804,7 +4807,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "k_nucleotide.py":1
+  /* "../python/k_nucleotide.py":1
  * def seq_lines(input_lines):             # <<<<<<<<<<<<<<
  *     i = 0
  *     for line in input_lines:
@@ -4814,7 +4817,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__7);
   __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__7, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_xeder_Projects_ease25_repl, __pyx_n_s_seq_lines, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 1, __pyx_L1_error)
 
-  /* "k_nucleotide.py":15
+  /* "../python/k_nucleotide.py":15
  *     return lines
  * 
  * def base_counts(bases, seq):             # <<<<<<<<<<<<<<
@@ -4826,7 +4829,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__9);
   __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_xeder_Projects_ease25_repl, __pyx_n_s_base_counts, 15, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 15, __pyx_L1_error)
 
-  /* "k_nucleotide.py":26
+  /* "../python/k_nucleotide.py":26
  *     return counts
  * 
  * def sorted_freq(bases, seq):             # <<<<<<<<<<<<<<
@@ -4838,7 +4841,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__11);
   __pyx_codeobj__12 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__11, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_xeder_Projects_ease25_repl, __pyx_n_s_sorted_freq, 26, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__12)) __PYX_ERR(0, 26, __pyx_L1_error)
 
-  /* "k_nucleotide.py":33
+  /* "../python/k_nucleotide.py":33
  *     return [ (kv[0], 100.0 * kv[1] / size) for kv in keysValues ]
  * 
  * def specific_count(code, seq):             # <<<<<<<<<<<<<<
@@ -4850,7 +4853,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__13);
   __pyx_codeobj__14 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__13, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_home_xeder_Projects_ease25_repl, __pyx_n_s_specific_count, 33, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__14)) __PYX_ERR(0, 33, __pyx_L1_error)
 
-  /* "k_nucleotide.py":36
+  /* "../python/k_nucleotide.py":36
  *     return base_counts(len(code), seq).get(code,0)
  * 
  * def main(lines):             # <<<<<<<<<<<<<<
@@ -4956,10 +4959,10 @@ static int __Pyx_modinit_function_import_code(void) {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_k_nucleotide(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_py_ext(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_k_nucleotide},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_py_ext},
   {0, NULL}
 };
 #endif
@@ -4972,7 +4975,7 @@ namespace {
   #endif
   {
       PyModuleDef_HEAD_INIT,
-      "k_nucleotide",
+      "py_ext",
       0, /* m_doc */
     #if CYTHON_PEP489_MULTI_PHASE_INIT
       0, /* m_size */
@@ -5020,11 +5023,11 @@ namespace {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initk_nucleotide(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initk_nucleotide(void)
+__Pyx_PyMODINIT_FUNC initpy_ext(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initpy_ext(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_k_nucleotide(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_k_nucleotide(void)
+__Pyx_PyMODINIT_FUNC PyInit_py_ext(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_py_ext(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -5105,7 +5108,7 @@ bad:
 }
 
 
-static CYTHON_SMALL_CODE int __pyx_pymod_exec_k_nucleotide(PyObject *__pyx_pyinit_module)
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_py_ext(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -5122,7 +5125,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_k_nucleotide(PyObject *__pyx_pyini
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m) {
     if (__pyx_m == __pyx_pyinit_module) return 0;
-    PyErr_SetString(PyExc_RuntimeError, "Module 'k_nucleotide' has already been imported. Re-initialisation is not supported.");
+    PyErr_SetString(PyExc_RuntimeError, "Module 'py_ext' has already been imported. Re-initialisation is not supported.");
     return -1;
   }
   #elif PY_MAJOR_VERSION >= 3
@@ -5134,13 +5137,13 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_k_nucleotide(PyObject *__pyx_pyini
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("k_nucleotide", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("py_ext", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   if (unlikely(!__pyx_m)) __PYX_ERR(0, 1, __pyx_L1_error)
   #elif CYTHON_USE_MODULE_STATE
   __pyx_t_1 = PyModule_Create(&__pyx_moduledef); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   {
     int add_module_result = PyState_AddModule(__pyx_t_1, &__pyx_moduledef);
-    __pyx_t_1 = 0; /* transfer ownership from __pyx_t_1 to "k_nucleotide" pseudovariable */
+    __pyx_t_1 = 0; /* transfer ownership from __pyx_t_1 to "py_ext" pseudovariable */
     if (unlikely((add_module_result < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
     pystate_addmodule_run = 1;
   }
@@ -5164,7 +5167,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_k_nucleotide(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_py_ext(void)", 0);
   if (__Pyx_check_binary_version(__PYX_LIMITED_VERSION_HEX, __Pyx_get_runtime_version(), CYTHON_COMPILING_IN_LIMITED_API) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
@@ -5202,14 +5205,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_k_nucleotide) {
+  if (__pyx_module_is_main_k_nucleotide__py_ext) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "k_nucleotide")) {
-      if (unlikely((PyDict_SetItemString(modules, "k_nucleotide", __pyx_m) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "k_nucleotide.py_ext")) {
+      if (unlikely((PyDict_SetItemString(modules, "k_nucleotide.py_ext", __pyx_m) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -5230,65 +5233,65 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "k_nucleotide.py":1
+  /* "../python/k_nucleotide.py":1
  * def seq_lines(input_lines):             # <<<<<<<<<<<<<<
  *     i = 0
  *     for line in input_lines:
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_1seq_lines, 0, __pyx_n_s_seq_lines, NULL, __pyx_n_s_k_nucleotide, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_6py_ext_1seq_lines, 0, __pyx_n_s_seq_lines, NULL, __pyx_n_s_k_nucleotide_py_ext, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_seq_lines, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "k_nucleotide.py":15
+  /* "../python/k_nucleotide.py":15
  *     return lines
  * 
  * def base_counts(bases, seq):             # <<<<<<<<<<<<<<
  *     counts = {}
  *     size = len(seq) + 1 - bases
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_3base_counts, 0, __pyx_n_s_base_counts, NULL, __pyx_n_s_k_nucleotide, __pyx_d, ((PyObject *)__pyx_codeobj__10)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_6py_ext_3base_counts, 0, __pyx_n_s_base_counts, NULL, __pyx_n_s_k_nucleotide_py_ext, __pyx_d, ((PyObject *)__pyx_codeobj__10)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_base_counts, __pyx_t_2) < 0) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "k_nucleotide.py":26
+  /* "../python/k_nucleotide.py":26
  *     return counts
  * 
  * def sorted_freq(bases, seq):             # <<<<<<<<<<<<<<
  *     keysValues = base_counts(bases, seq).items()
  *     size = len(seq) + 1 - bases
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_5sorted_freq, 0, __pyx_n_s_sorted_freq, NULL, __pyx_n_s_k_nucleotide, __pyx_d, ((PyObject *)__pyx_codeobj__12)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_6py_ext_5sorted_freq, 0, __pyx_n_s_sorted_freq, NULL, __pyx_n_s_k_nucleotide_py_ext, __pyx_d, ((PyObject *)__pyx_codeobj__12)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_sorted_freq, __pyx_t_2) < 0) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "k_nucleotide.py":33
+  /* "../python/k_nucleotide.py":33
  *     return [ (kv[0], 100.0 * kv[1] / size) for kv in keysValues ]
  * 
  * def specific_count(code, seq):             # <<<<<<<<<<<<<<
  *     return base_counts(len(code), seq).get(code,0)
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_7specific_count, 0, __pyx_n_s_specific_count, NULL, __pyx_n_s_k_nucleotide, __pyx_d, ((PyObject *)__pyx_codeobj__14)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_6py_ext_7specific_count, 0, __pyx_n_s_specific_count, NULL, __pyx_n_s_k_nucleotide_py_ext, __pyx_d, ((PyObject *)__pyx_codeobj__14)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_specific_count, __pyx_t_2) < 0) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "k_nucleotide.py":36
+  /* "../python/k_nucleotide.py":36
  *     return base_counts(len(code), seq).get(code,0)
  * 
  * def main(lines):             # <<<<<<<<<<<<<<
  *     lines = seq_lines(lines)
  *     seq = "".join([s.upper() for s in lines])
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_9main, 0, __pyx_n_s_main_2, NULL, __pyx_n_s_k_nucleotide, __pyx_d, ((PyObject *)__pyx_codeobj__16)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_12k_nucleotide_6py_ext_9main, 0, __pyx_n_s_main_2, NULL, __pyx_n_s_k_nucleotide_py_ext, __pyx_d, ((PyObject *)__pyx_codeobj__16)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_main_2, __pyx_t_2) < 0) __PYX_ERR(0, 36, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "k_nucleotide.py":1
+  /* "../python/k_nucleotide.py":1
  * def seq_lines(input_lines):             # <<<<<<<<<<<<<<
  *     i = 0
  *     for line in input_lines:
@@ -5305,7 +5308,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_2);
   if (__pyx_m) {
     if (__pyx_d && stringtab_initialized) {
-      __Pyx_AddTraceback("init k_nucleotide", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init k_nucleotide.py_ext", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     #if !CYTHON_USE_MODULE_STATE
     Py_CLEAR(__pyx_m);
@@ -5319,7 +5322,7 @@ if (!__Pyx_RefNanny) {
     }
     #endif
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init k_nucleotide");
+    PyErr_SetString(PyExc_ImportError, "init k_nucleotide.py_ext");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
