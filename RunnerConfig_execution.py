@@ -52,6 +52,7 @@ class ExternalMachineAPI:
                 self.stdin, self.stdout, self.stderr = self.ssh.exec_command(wrapped_command)
             else:
                 self.ssh.exec_command(wrapped_command)
+            return wrapped_command
         except paramiko.SSHException:
             print('Failed to send run command to machine!')
         except TimeoutError:
@@ -195,33 +196,30 @@ class RunnerConfig:
         self.post_warmup_cooldown_time  : int   = 30    # Seconds
 
         self.subject_execution_templates = {
-            'python'    : '{python_venv} {target_path}/{target}.py',
+            'cpython'    : '{python_venv} {target_path}/{target}.py',
             'cython'    : '{target_path}/functions/{target}', # TODO 
-            'cpython'   : None, # TODO 
             'pypy'      : None, # TODO
             'nuitka'    : '{target_path}/{target}/{target}.bin',
             'numba'     : None,
             'codon'     : None,
             'mypyc'     : None,
-            'pyston'    : None,
-            'pythran'   : None
         }
 
         self.target_inputs = {
             'spectralnorm'      : 5500,
-            'binary-trees'      : 21,
+            'binary_trees'      : 21,
             'fasta'             : 25000000,
-            'k-nucleotide'      : './ease25-repl-pkg/code/outputs/fasta.txt',
-            'n-body'            : 50000000,
+            'k_nucleotide'      : './ease25-repl-pkg/code/fasta_input.txt',
+            'n_body'            : 50000000,
             'mandelbrot'        : 16000,
-            'fannkuch-redux'    : 12,
+            'fannkuch_redux'    : 12,
         }
 
         self.python_venv_path = f'./ease25-repl-pkg/venv/bin/python'
   
         self.run_directory_template = './ease25-repl-pkg/experiments/{name}/{run_directory_name}'
 
-        self.energibrige_command_template = 'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {run_directory}/energibridge.csv --command-output {run_directory}/output.txt {run_command}'
+        self.energibrige_command_template = 'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {run_directory}/energibridge.csv --command-output {run_directory}/output.txt taskset -c 0 {run_command}'
         self.perf_command_template= 'sudo -S perf stat -x, -o {run_directory}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p '
 
         self.intermediary_results = {'total_joules' : None, 'execution_time' : None}
@@ -232,8 +230,8 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("subject", ['python']) # 'cython', 'cpython', 'nuitka', 'pypy',  NOT YET TESTED: 'numba', 'codon', 'mypyc', 'pyston', 'pythran'
-        factor2 = FactorModel("target", ['spectralnorm', 'binary-trees', 'fasta', 'k-nucleotide', 'n-body', 'mandelbrot', 'fannkuch-redux'])
+        factor1 = FactorModel("subject", ['cpython']) # 'cython', 'pypy', 'numba', 'codon', 'mypyc', 'nuitka'
+        factor2 = FactorModel("target", ['mandelbrot']) # 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
             repetitions=1,
@@ -252,13 +250,22 @@ class RunnerConfig:
         output.console_log("Config.before_experiment() called!")
         ssh = ExternalMachineAPI()
 
-        # Extract fasta.txt file
-        check_command = f"[ -f ./ease25-repl-pkg/code/outputs/fasta.txt ] && echo 'exists' || echo 'not_exists'"
+        # Extract fasta_output.txt file
+        check_command = f"[ -f ./ease25-repl-pkg/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
         ssh.execute_remote_command(check_command)
         check_status = ssh.stdout.readline()
         if check_status.strip() == 'not_exists':
             output.console_log("Unpacking expected results of fasta.txt on experimental machine...")
-            extract_command = 'tar -xf ./ease25-repl-pkg/code/outputs/fasta.tar.xz -C ./ease25-repl-pkg/code/outputs/'
+            extract_command = 'tar -xf ./ease25-repl-pkg/code/outputs/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
+            ssh.execute_remote_command(extract_command)
+
+        # Extract fasta_output.txt file
+        check_command = f"[ -f ./ease25-repl-pkg/code/outputs/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
+        ssh.execute_remote_command(check_command)
+        check_status = ssh.stdout.readline()
+        if check_status.strip() == 'not_exists':
+            output.console_log("Unpacking expected results of fasta_input.txt on experimental machine...")
+            extract_command = 'tar -xf ./ease25-repl-pkg/code/outputs/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
             ssh.execute_remote_command(extract_command)
 
         # Warmup machine for one minute
@@ -282,7 +289,7 @@ class RunnerConfig:
         subject = context.run_variation['subject']
         target = context.run_variation['target']
 
-        target_path = f'./ease25-repl-pkg/code/{subject}'
+        target_path = f'./ease25-repl-pkg/code/control_group/{subject}'
                 
         subject_command = self.subject_execution_templates[subject].format_map(defaultdict(str, {'target_path' : target_path,
                                                                                                  'target' : target,
@@ -311,9 +318,9 @@ class RunnerConfig:
     def start_measurement(self, context: RunnerContext) -> None:
         output.console_log("Config.start_measurement() called!")    
         ssh = ExternalMachineAPI()
-        ssh.execute_remote_command(self.energibrige_command, arg=self.target_inputs[context.run_variation['target']],
+        wrapped_command = ssh.execute_remote_command(self.energibrige_command, arg=self.target_inputs[context.run_variation['target']],
                                    arg_from_file=True if isinstance(self.target_inputs[context.run_variation['target']], str) else False)
-        output.console_log(f'Running energibridge with: {self.energibrige_command}')
+        output.console_log(f'Running energibridge with: {wrapped_command}')
         self.interaction_pid = int(ssh.stdout.readline())
 
         # Start perf monitor and attach it to the target process
@@ -354,6 +361,7 @@ class RunnerConfig:
         ssh.execute_remote_command(f'ls {self.external_run_dir}')
         files = ssh.stdout.readlines()
         for file in files:
+            output.console_log_WARNING(f"This is the file on the other machine {file}")
             ssh.copy_file_from_remote(f'{self.external_run_dir}/{file.strip()}', context.run_dir)
         del ssh
 
