@@ -11,7 +11,7 @@ Initial design involves two benchmarks:
 
 ### Control Group
 
-We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) following these criteria to mitigate any threat to validity related to code characteristics and to discover if they can influence our results.
+We selected 7 functions from the Computer Language Benchmark Game (CLBG) following these criteria to mitigate any threat to validity related to code characteristics and to discover if they can influence our results.
 
 1. well-defined developer profile
 2. no parallelism (single-thread) 
@@ -30,21 +30,22 @@ We selected 6/7 functions from the Computer Language Benchmark Game (CLBG) follo
 
 ### Subjects (Execution Modes)
 
-| Subject | Type   | Description | Notes |
-| ------- | ------ | ----------- | ----- |
-| PyPy    | JIT    |             | pypy3 |
-| Nuitka  | AOT    |             |       |
-| Cython  | AOT    |             |       |
-| CPython | Inter. |             |       |
-| Codon   | AOT    |             |       |
-| mypyc   | AOT    |             |       |
+| Subject | Type   | Description | Notes | Build                                                                    |
+| ------- | ------ | ----------- | ----- | ------------------------------------------------------------------       | 
+| PyPy    | JIT    |             | pypy3 | `pypy --opt=2`                                                           |
+| Nuitka  | AOT    |             |       | `python -m nuitka --standalone --python-flag=no_site your_script.py`     |
+| Cython  | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
+| CPython | Inter. |             |       |                                                                          |
+| Codon   | AOT    |             |       | `codon build -release -exe "$py_file" -o "build/${py_file%.*}"`          |
+| mypyc   | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
+| Numba   | JIT    |             |       |  no flags, just decorator                                                |
 
+
+#### To Test 
 
 | Subject     | Type | Description | Notes                          |
 | ----------- | ---- | ----------- | ------------------------------ |
-| Numba       | JIT  | compiles -  | Need Major Rework of the Code  |
 | Pyston-lite | JIT  |             |                                |
-| pythran     | AOT  |             | needs directive                |
 | pyjion      | JIT  |             |                                |
 
 note: the modes are different: interpreted, python DSL, AOT, JIT. We describe in the discussion section but not part of this study.
@@ -52,9 +53,7 @@ note: the modes are different: interpreted, python DSL, AOT, JIT. We describe in
 #### First Experiment on the Control Group
 
 `Runs:` 6 functions x 10 repetitions x 9 modes
-
 `Total_Time:` 60 + 90 + 44.83 + 80 + 140 + 20 min (total cooling down) ~ 7 hours 
-
 `Worst Case:` 7h x 9 modes = 2.6 days
 
 NB: The functions on the CLBG were executed on a quad core. Our NUC should be more powerful.
@@ -67,6 +66,9 @@ NB: The functions on the CLBG were executed on a quad core. Our NUC should be mo
 - [x] warm up run: prior to the experiment run a function to warm up the machine (e.g., fibonacci.py) for 1m and then cool the machine for 30 seconds.
 - [x] save the output of the functions
 - [x] add validation of result for each function
+- [ ] remember to use `taskset -c 0` to bind the execution to 1 core
+- [ ] compile and save all scripts
+- [ ] setup compilers to save intermediate files
 - [ ] compile and save all scripts
 - [ ] setup compilers to save intermediate files
 - [x] check Hyperthreading OFF
