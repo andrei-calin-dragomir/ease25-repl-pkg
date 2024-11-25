@@ -231,7 +231,7 @@ class RunnerConfig:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
         factor1 = FactorModel("subject", ['cpython']) # 'cython', 'pypy', 'numba', 'codon', 'mypyc', 'nuitka'
-        factor2 = FactorModel("target", ['mandelbrot']) # 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'
+        factor2 = FactorModel("target", ['mandelbrot', 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
             repetitions=1,
@@ -255,8 +255,8 @@ class RunnerConfig:
         ssh.execute_remote_command(check_command)
         check_status = ssh.stdout.readline()
         if check_status.strip() == 'not_exists':
-            output.console_log("Unpacking expected results of fasta.txt on experimental machine...")
-            extract_command = 'tar -xf ./ease25-repl-pkg/code/outputs/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
+            output.console_log("Unpacking expected results of fasta_output.txt on experimental machine...")
+            extract_command = 'tar -xf ./ease25-repl-pkg/code/outputs/fasta_output.tar.xz -C ./ease25-repl-pkg/code/'
             ssh.execute_remote_command(extract_command)
 
         # Extract fasta_output.txt file
