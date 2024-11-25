@@ -67,11 +67,10 @@ NB: The functions on the CLBG were executed on a quad core. Our NUC should be mo
 - [x] warm up run: prior to the experiment run a function to warm up the machine (e.g., fibonacci.py) for 1m and then cool the machine for 30 seconds.
 - [x] save the output of the functions
 - [x] add validation of result for each function
-- [ ] setup compilers to save intermediate files
 - [ ] compile and save all scripts
-- [ ] check the conditions of the testbed when idle.
-- [ ] check Hyperthreading OFF
-- [ ] check Turbo boost OFF (Linux Governor Powersave)
+- [ ] setup compilers to save intermediate files
+- [x] check Hyperthreading OFF
+- [x] check Turbo boost OFF (Linux Governor Powersave)
 
 ## Experiment Setup
 
