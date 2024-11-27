@@ -8,7 +8,7 @@ then
 fi
 
 # Directory containing Python files
-SOURCE_DIR="../python" 
+SOURCE_DIR="../cpython" 
 OUTPUT_DIR="./build"
 
 # Create output directory if it doesn't exist

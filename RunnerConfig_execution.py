@@ -15,7 +15,7 @@ from os.path import dirname, realpath
 import time
 import paramiko
 import subprocess
-from os import getenv
+from os import getenv, remove
 from dotenv import load_dotenv
 from scp import SCPClient
 from collections import defaultdict
@@ -156,7 +156,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = "execution_experiment"
+    name:                       str             = "nuitka_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -199,7 +199,7 @@ class RunnerConfig:
             'cpython'    : '{python_venv} {target_path}/{target}.py',
             'cython'    : '{target_path}/functions/{target}', # TODO 
             'pypy'      : None, # TODO
-            'nuitka'    : '{target_path}/{target}/{target}.bin',
+            'nuitka'    : '{target_path}/build/{target}.bin',
             'numba'     : None,
             'codon'     : None,
             'mypyc'     : None,
@@ -226,15 +226,14 @@ class RunnerConfig:
 
         output.console_log("Custom config loaded")
 
-    # TODO Update Runtable
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("subject", ['cpython']) # 'cython', 'pypy', 'numba', 'codon', 'mypyc', 'nuitka'
+        factor1 = FactorModel("subject", ['nuitka']) # 'cython', 'pypy', 'numba', 'codon', 'mypyc', 'cpython'
         factor2 = FactorModel("target", ['mandelbrot', 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
-            repetitions=1,
+            repetitions=15,
             exclude_variations=[],
             data_columns=['cache-references', 'cache-misses', 'LLC-loads', 'LLC-load-misses', 'LLC-stores', 'LLC-store-misses',
                           'cache-references_percent', 'cache-misses_percent', 'LLC-loads_percent', 'LLC-load-misses_percent', 'LLC-stores_percent', 'LLC-store-misses_percent',
@@ -250,22 +249,13 @@ class RunnerConfig:
         output.console_log("Config.before_experiment() called!")
         ssh = ExternalMachineAPI()
 
-        # Extract fasta_output.txt file
+        # Extract fasta_input.txt file
         check_command = f"[ -f ./ease25-repl-pkg/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
         ssh.execute_remote_command(check_command)
         check_status = ssh.stdout.readline()
         if check_status.strip() == 'not_exists':
-            output.console_log("Unpacking expected results of fasta_output.txt on experimental machine...")
-            extract_command = 'tar -xf ./ease25-repl-pkg/code/outputs/fasta_output.tar.xz -C ./ease25-repl-pkg/code/'
-            ssh.execute_remote_command(extract_command)
-
-        # Extract fasta_output.txt file
-        check_command = f"[ -f ./ease25-repl-pkg/code/outputs/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
-        ssh.execute_remote_command(check_command)
-        check_status = ssh.stdout.readline()
-        if check_status.strip() == 'not_exists':
             output.console_log("Unpacking expected results of fasta_input.txt on experimental machine...")
-            extract_command = 'tar -xf ./ease25-repl-pkg/code/outputs/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
+            extract_command = 'tar -xf ./ease25-repl-pkg/code/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
             ssh.execute_remote_command(extract_command)
 
         # Warmup machine for one minute
@@ -363,7 +353,6 @@ class RunnerConfig:
         for file in files:
             output.console_log_WARNING(f"This is the file on the other machine {file}")
             ssh.copy_file_from_remote(f'{self.external_run_dir}/{file.strip()}', context.run_dir)
-        del ssh
 
         local_output_validation_file = f"./code/outputs/{context.run_variation['target']}.txt"
         received_output_file = f"{context.run_dir}/output.txt"
@@ -372,9 +361,15 @@ class RunnerConfig:
             # Extract perf output from experimental machine for current run
             perf_output = parse_perf_output(f"{context.run_dir}/perf.csv")
             energibridge_output = parse_energibridge_output(f"{context.run_dir}/energibridge.csv")
+
+            # Remove output files because they take a lot of space
+            remove(received_output_file)
+            ssh.execute_remote_command(f'sudo -S rm {self.external_run_dir}/output.txt')
+            del ssh
             return dict(perf_output.items() | self.intermediary_results.items() | energibridge_output.items())
         else:
             output.console_log_FAIL(f'Target function did not return the expected result.')
+            del ssh
             return None
 
     def after_experiment(self) -> None:
