@@ -19,10 +19,10 @@ from os import getenv, remove
 from dotenv import load_dotenv
 from scp import SCPClient
 from collections import defaultdict
+load_dotenv()
 
 class ExternalMachineAPI:
     def __init__(self):
-        load_dotenv()
 
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -36,23 +36,13 @@ class ExternalMachineAPI:
         except paramiko.SSHException:
             print('Failed to send run command to machine!')
 
-    def execute_remote_command(self, command : str, arg : Union[int, str] = None, arg_from_file : bool = False, overwrite_channels : bool = True):
+    def execute_remote_command(self, command : str = '', overwrite_channels : bool = True):
         try:
-            # Wrap command to fit paramiko call
-            if arg:
-                if arg_from_file:
-                    wrapped_command = f"{command}< <(echo {getenv('PASSWORD')} && cat {arg})" if command.startswith('sudo') else f'{command} <{arg}'
-                if not arg_from_file:
-                    wrapped_command = f"echo {getenv('PASSWORD')} | {command} {arg}" if command.startswith('sudo') else f'{command} {arg}'
-            else:
-                wrapped_command = f"echo {getenv('PASSWORD')} | {command}" if command.startswith('sudo') else command
-
             # Execute the command
             if overwrite_channels:
-                self.stdin, self.stdout, self.stderr = self.ssh.exec_command(wrapped_command)
+                self.stdin, self.stdout, self.stderr = self.ssh.exec_command(command)
             else:
-                self.ssh.exec_command(wrapped_command)
-            return wrapped_command
+                self.ssh.exec_command(command)
         except paramiko.SSHException:
             print('Failed to send run command to machine!')
         except TimeoutError:
@@ -156,7 +146,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = "nuitka_experiment"
+    name:                       str             = "cython_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -196,13 +186,34 @@ class RunnerConfig:
         self.post_warmup_cooldown_time  : int   = 30    # Seconds
 
         self.subject_execution_templates = {
-            'cpython'    : '{python_venv} {target_path}/{target}.py',
-            'cython'    : '{target_path}/functions/{target}', # TODO 
-            'pypy'      : None, # TODO
-            'nuitka'    : '{target_path}/build/{target}.bin',
-            'numba'     : None,
-            'codon'     : None,
-            'mypyc'     : None,
+            'cpython'   : {
+                'file_io'   : '{venv_python} {target_path}/{target}.py',
+                'value_io'  : '{venv_python} {target_path}/{target}.py {input}'
+            },
+            'cython'    : {
+                'file_io'   : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main()"',
+                'value_io'  : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main({input})"'
+            },
+            'nuitka'    : {
+                'file_io'   : '{target_path}/build/{target}.bin',
+                'value_io'  : '{target_path}/build/{target}.bin {input}'
+            },
+            'pypy'      : {
+                'file_io'   : None, # TODO
+                'value_io'  : None, # TODO
+            },
+            'numba'     : {
+                'file_io'   : None, # TODO
+                'value_io'  : None, # TODO
+            },
+            'codon'     : {
+                'file_io'   : None, # TODO
+                'value_io'  : None, # TODO
+            },
+            'mypyc'     : {
+                'file_io'   : None, # TODO
+                'value_io'  : None, # TODO
+            }
         }
 
         self.target_inputs = {
@@ -215,21 +226,15 @@ class RunnerConfig:
             'fannkuch_redux'    : 12,
         }
 
-        self.python_venv_path = f'./ease25-repl-pkg/venv/bin/python'
-  
-        self.run_directory_template = './ease25-repl-pkg/experiments/{name}/{run_directory_name}'
-
-        self.energibrige_command_template = 'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {metric_capturing_interval} --summary --output {run_directory}/energibridge.csv --command-output {run_directory}/output.txt taskset -c 0 {run_command}'
-        self.perf_command_template= 'sudo -S perf stat -x, -o {run_directory}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p '
-
         self.intermediary_results = {'total_joules' : None, 'execution_time' : None}
+        self.venv_python = f'./ease25-repl-pkg/venv/bin/python'
 
         output.console_log("Custom config loaded")
 
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("subject", ['nuitka']) # 'cython', 'pypy', 'numba', 'codon', 'mypyc', 'cpython'
+        factor1 = FactorModel("subject", ['cython']) # 'cpython', 'pypy', 'numba', 'codon', 'mypyc', 'nuitka'
         factor2 = FactorModel("target", ['mandelbrot', 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
@@ -246,27 +251,27 @@ class RunnerConfig:
         return self.run_table_model
 
     def before_experiment(self) -> None:
-        output.console_log("Config.before_experiment() called!")
-        ssh = ExternalMachineAPI()
+        # output.console_log("Config.before_experiment() called!")
+        # ssh = ExternalMachineAPI()
 
-        # Extract fasta_input.txt file
-        check_command = f"[ -f ./ease25-repl-pkg/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
-        ssh.execute_remote_command(check_command)
-        check_status = ssh.stdout.readline()
-        if check_status.strip() == 'not_exists':
-            output.console_log("Unpacking expected results of fasta_input.txt on experimental machine...")
-            extract_command = 'tar -xf ./ease25-repl-pkg/code/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
-            ssh.execute_remote_command(extract_command)
+        # # Extract fasta_input.txt file
+        # check_command = f"[ -f ./ease25-repl-pkg/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
+        # ssh.execute_remote_command(check_command)
+        # check_status = ssh.stdout.readline()
+        # if check_status.strip() == 'not_exists':
+        #     output.console_log("Unpacking expected results of fasta_input.txt on experimental machine...")
+        #     extract_command = 'tar -xf ./ease25-repl-pkg/code/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
+        #     ssh.execute_remote_command(extract_command)
 
-        # Warmup machine for one minute
-        output.console_log("Warming up machine using a fibonnaci sequence...")
-        warmup_command = f'{self.python_venv_path} ./ease25-repl-pkg/code/warmup.py 1000 & pid=$!; echo $pid'
-        ssh.execute_remote_command(warmup_command)
-        time.sleep(self.warmup_time)
-        ssh.execute_remote_command(f'kill {ssh.stdout.readline()}')
+        # # Warmup machine for one minute
+        # output.console_log("Warming up machine using a fibonnaci sequence...")
+        # warmup_command = f"echo {getenv('PASSWORD')} | sudo -S {self.venv_python} ./ease25-repl-pkg/code/warmup.py 1000 & pid=$!; echo $pid"
+        # ssh.execute_remote_command(warmup_command)
+        # time.sleep(self.warmup_time)
+        # ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S kill {ssh.stdout.readline()}")
 
-        # Cooldown machine
-        time.sleep(self.post_warmup_cooldown_time)
+        # # Cooldown machine
+        # time.sleep(self.post_warmup_cooldown_time)
 
         output.console_log_OK("Warmup finished. Experiment is starting now!")
 
@@ -278,45 +283,49 @@ class RunnerConfig:
 
         subject = context.run_variation['subject']
         target = context.run_variation['target']
-
+        input = self.target_inputs[context.run_variation['target']]
+        
         target_path = f'./ease25-repl-pkg/code/control_group/{subject}'
-                
-        subject_command = self.subject_execution_templates[subject].format_map(defaultdict(str, {'target_path' : target_path,
-                                                                                                 'target' : target,
-                                                                                                 'python_venv' : self.python_venv_path,
-                                                                                                }))
 
-        self.external_run_dir = self.run_directory_template.format(results_output_path = self.results_output_path,
-                                                                   name = self.name,
-                                                                   run_directory_name = context.run_dir.name)
+        self.external_run_dir = f'./ease25-repl-pkg/experiments/{self.name}/{context.run_dir.name}'
 
-        self.energibrige_command = self.energibrige_command_template.format(metric_capturing_interval=self.metric_capturing_interval,
-                                                                            run_command=subject_command,
-                                                                            run_directory=self.external_run_dir)
-        self.perf_command = self.perf_command_template.format(run_directory=self.external_run_dir)
+        energibrige_command = f'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {self.metric_capturing_interval} --summary --output {self.external_run_dir}/energibridge.csv --command-output {self.external_run_dir}/output.txt taskset -c 0'
 
+        # Fill command with current run values
+        subject_command = self.subject_execution_templates[subject]['file_io' if isinstance(input, str) else 'value_io'].format_map(defaultdict(str, {'target_path' : target_path,
+                                                                                                                                                      'target'      : target,
+                                                                                                                                                      'venv_python' : self.venv_python,
+                                                                                                                                                      'input'       : input
+                                                                                                                                                      }))
+        
+        # Wrap command to fit paramiko call
+        if isinstance(input, str):
+            self.execution_command = f"{energibrige_command} {subject_command}< <(echo {getenv('PASSWORD')} && cat {input})"
+        else:
+            self.execution_command = f"echo {getenv('PASSWORD')} | {energibrige_command} {subject_command}"
 
+        self.perf_command = f'sudo -S perf stat -x, -o {self.external_run_dir}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p'
         # Make directory of run on experimental machine
         ssh = ExternalMachineAPI()
-        ssh.execute_remote_command(f'sudo -S mkdir -p {self.external_run_dir}')
+        ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S mkdir -p {self.external_run_dir}")
         del ssh
 
         output.console_log(f'Run directory on experimental machine: {self.external_run_dir}')
-        output.console_log(f'Run command: {self.energibrige_command}')
         output.console_log_OK('Run configuration is successful.')
 
     def start_measurement(self, context: RunnerContext) -> None:
         output.console_log("Config.start_measurement() called!")    
         ssh = ExternalMachineAPI()
-        wrapped_command = ssh.execute_remote_command(self.energibrige_command, arg=self.target_inputs[context.run_variation['target']],
-                                   arg_from_file=True if isinstance(self.target_inputs[context.run_variation['target']], str) else False)
-        output.console_log(f'Running energibridge with: {wrapped_command}')
+        ssh.execute_remote_command(self.execution_command)
+        output.console_log(f'Running command through energibridge with:\n{self.execution_command}')
+
         self.interaction_pid = int(ssh.stdout.readline())
 
         # Start perf monitor and attach it to the target process
         output.console_log(f'PID of run interaction: {self.interaction_pid}')
-        perf_command = self.perf_command + str(self.interaction_pid)
-        output.console_log(f'Running perf with: {perf_command}')
+        
+        perf_command = f"echo {getenv('PASSWORD')} | {self.perf_command} {str(self.interaction_pid)}"
+        output.console_log(f'Running perf with:\n{perf_command}')
         ssh.execute_remote_command(perf_command, overwrite_channels=False)
         output.console_log_OK('Run has successfuly started.')
 
@@ -364,7 +373,7 @@ class RunnerConfig:
 
             # Remove output files because they take a lot of space
             remove(received_output_file)
-            ssh.execute_remote_command(f'sudo -S rm {self.external_run_dir}/output.txt')
+            ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S rm {self.external_run_dir}/output.txt")
             del ssh
             return dict(perf_output.items() | self.intermediary_results.items() | energibridge_output.items())
         else:
@@ -374,7 +383,7 @@ class RunnerConfig:
 
     def after_experiment(self) -> None:
         ssh = ExternalMachineAPI()
-        ssh.execute_remote_command(f'sudo -S rm -r ./ease25-repl-pkg/experiments')
+        ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S rm -r ./ease25-repl-pkg/experiments")
         del ssh
 
     # ================================ DO NOT ALTER BELOW THIS LINE ================================
