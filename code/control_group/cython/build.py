@@ -3,7 +3,7 @@ from setuptools import setup
 from Cython.Build import cythonize
 
 def build():
-    paths = glob.glob('../python/*.py', recursive=True)
+    paths = glob.glob('python/*.py', recursive=True)
     setup(
         ext_modules = cythonize(paths, build_dir="build"),
         script_args = ['build_ext'],
