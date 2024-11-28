@@ -1,6 +1,6 @@
 from sys import argv   
 
-def main(n):
+def fannkuch(n):
    perm1 = [0] * n   
    for i in range(n): perm1[i] = i      
    perm = [0] * n
@@ -53,5 +53,9 @@ def main(n):
 
    return flips
 
-n = int(argv[1]) if len(argv) > 1 else 7   
-print("Pfannkuchen(%i) = %i" % (n, main(n)))    
+def main(n): 
+   print("Pfannkuchen(%i) = %i" % (n, fannkuch(n)))    
+
+if __name__ == "__main__":
+   n = int(argv[1]) if len(argv) > 1 else 7
+   main(n)
