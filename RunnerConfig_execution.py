@@ -251,27 +251,27 @@ class RunnerConfig:
         return self.run_table_model
 
     def before_experiment(self) -> None:
-        # output.console_log("Config.before_experiment() called!")
-        # ssh = ExternalMachineAPI()
+        output.console_log("Config.before_experiment() called!")
+        ssh = ExternalMachineAPI()
 
-        # # Extract fasta_input.txt file
-        # check_command = f"[ -f ./ease25-repl-pkg/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
-        # ssh.execute_remote_command(check_command)
-        # check_status = ssh.stdout.readline()
-        # if check_status.strip() == 'not_exists':
-        #     output.console_log("Unpacking expected results of fasta_input.txt on experimental machine...")
-        #     extract_command = 'tar -xf ./ease25-repl-pkg/code/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
-        #     ssh.execute_remote_command(extract_command)
+        # Extract fasta_input.txt file
+        check_command = f"[ -f ./ease25-repl-pkg/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
+        ssh.execute_remote_command(check_command)
+        check_status = ssh.stdout.readline()
+        if check_status.strip() == 'not_exists':
+            output.console_log("Unpacking expected results of fasta_input.txt on experimental machine...")
+            extract_command = 'tar -xf ./ease25-repl-pkg/code/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
+            ssh.execute_remote_command(extract_command)
 
-        # # Warmup machine for one minute
-        # output.console_log("Warming up machine using a fibonnaci sequence...")
-        # warmup_command = f"echo {getenv('PASSWORD')} | sudo -S {self.venv_python} ./ease25-repl-pkg/code/warmup.py 1000 & pid=$!; echo $pid"
-        # ssh.execute_remote_command(warmup_command)
-        # time.sleep(self.warmup_time)
-        # ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S kill {ssh.stdout.readline()}")
+        # Warmup machine for one minute
+        output.console_log("Warming up machine using a fibonnaci sequence...")
+        warmup_command = f"echo {getenv('PASSWORD')} | sudo -S {self.venv_python} ./ease25-repl-pkg/code/warmup.py 1000 & pid=$!; echo $pid"
+        ssh.execute_remote_command(warmup_command)
+        time.sleep(self.warmup_time)
+        ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S kill {ssh.stdout.readline()}")
 
-        # # Cooldown machine
-        # time.sleep(self.post_warmup_cooldown_time)
+        # Cooldown machine
+        time.sleep(self.post_warmup_cooldown_time)
 
         output.console_log_OK("Warmup finished. Experiment is starting now!")
 
