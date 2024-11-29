@@ -199,8 +199,8 @@ class RunnerConfig:
                 'value_io'  : '{target_path}/build/{target}.bin {input}'
             },
             'pypy'      : {
-                'file_io'   : 'pypy3 --opt=2 {target_path}/{target}.py',
-                'value_io'  : 'pypy3 --opt=2 {target_path}/{target}.py {input}'
+                'file_io'   : 'pypy3 {target_path}/{target}.py',
+                'value_io'  : 'pypy3 {target_path}/{target}.py {input}'
             },
             'numba'     : {
                 'file_io'   : None, # TODO
