@@ -146,7 +146,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = "pypy_experiment"
+    name:                       str             = "mypyc_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -202,15 +202,15 @@ class RunnerConfig:
                 'file_io'   : 'pypy3 {target_path}/{target}.py',
                 'value_io'  : 'pypy3 {target_path}/{target}.py {input}'
             },
+            'mypyc'     : {
+                'file_io'   : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main()"',
+                'value_io'  : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main({input})"'
+            },
             'numba'     : {
                 'file_io'   : None, # TODO
                 'value_io'  : None, # TODO
             },
             'codon'     : {
-                'file_io'   : None, # TODO
-                'value_io'  : None, # TODO
-            },
-            'mypyc'     : {
                 'file_io'   : None, # TODO
                 'value_io'  : None, # TODO
             }

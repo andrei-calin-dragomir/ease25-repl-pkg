@@ -32,7 +32,7 @@ We selected 7 functions from the Computer Language Benchmark Game (CLBG) followi
 
 | Subject | Type   | Description | Notes | Build                                                                    |
 | ------- | ------ | ----------- | ----- | ------------------------------------------------------------------       | 
-| PyPy    | JIT    |             | pypy3 | `pypy --opt=2`                                                           |
+| PyPy    | JIT    |             | pypy3 | `pypy --opt=2` No need to set --opt=2, it is the default value           |
 | Nuitka  | AOT    |             |       | `python -m nuitka --standalone --python-flag=no_site your_script.py`     |
 | Cython  | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
 | CPython | Inter. |             |       |                                                                          |
@@ -52,7 +52,7 @@ note: the modes are different: interpreted, python DSL, AOT, JIT. We describe in
 
 #### First Experiment on the Control Group
 
-`Runs:` 6 functions x 10 repetitions x 9 modes
+`Runs:` 7 functions x 15 repetitions x 7 modes
 `Total_Time:` 60 + 90 + 44.83 + 80 + 140 + 20 min (total cooling down) ~ 7 hours 
 `Worst Case:` 7h x 9 modes = 2.6 days
 

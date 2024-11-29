@@ -3,9 +3,8 @@ from setuptools import setup
 from mypyc.build import mypycify
 
 def build():
-    paths = glob.glob('../python/*.py', recursive=True) 
-    paths = [p for p in paths if 'binary' not in p] + ['binary_trees.py']
-
+    paths = glob.glob('./source/*.py', recursive=True) 
+    
     setup(
         ext_modules = mypycify(paths),
         script_args = ['build_ext'],

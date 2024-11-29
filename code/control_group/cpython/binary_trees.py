@@ -1,3 +1,8 @@
+# The Computer Language Benchmarks Game
+# https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
+#
+# contributed by Isaac Gouy
+
 import sys
 
 class Tree:
