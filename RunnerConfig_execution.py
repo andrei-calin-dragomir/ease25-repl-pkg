@@ -146,7 +146,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = "cython_experiment"
+    name:                       str             = "pypy_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -199,8 +199,8 @@ class RunnerConfig:
                 'value_io'  : '{target_path}/build/{target}.bin {input}'
             },
             'pypy'      : {
-                'file_io'   : None, # TODO
-                'value_io'  : None, # TODO
+                'file_io'   : 'pypy3 --opt=2 {target_path}/{target}.py',
+                'value_io'  : 'pypy3 --opt=2 {target_path}/{target}.py {input}'
             },
             'numba'     : {
                 'file_io'   : None, # TODO
@@ -234,7 +234,7 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("subject", ['cython']) # 'cpython', 'pypy', 'numba', 'codon', 'mypyc', 'nuitka'
+        factor1 = FactorModel("subject", ['pypy']) # 'cpython', 'cython', 'numba', 'codon', 'mypyc', 'nuitka'
         factor2 = FactorModel("target", ['mandelbrot', 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
