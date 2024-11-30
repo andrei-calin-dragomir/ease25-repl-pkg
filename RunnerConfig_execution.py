@@ -15,6 +15,7 @@ from os.path import dirname, realpath
 import time
 import paramiko
 import subprocess
+import pandas as pd
 from os import getenv, remove
 from dotenv import load_dotenv
 from scp import SCPClient
