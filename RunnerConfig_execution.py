@@ -94,44 +94,24 @@ def parse_perf_output(file_path):
     return perf_data
 
 def parse_energibridge_output(file_path):
-    
-    target_columns = {
-        'CPU_USAGE_0', 'CPU_USAGE_1', 'CPU_USAGE_10', 'CPU_USAGE_11', 'CPU_USAGE_12', 'CPU_USAGE_13', 'CPU_USAGE_14', 'CPU_USAGE_15',
-        'CPU_USAGE_2', 'CPU_USAGE_3', 'CPU_USAGE_4', 'CPU_USAGE_5', 'CPU_USAGE_6', 'CPU_USAGE_7', 'CPU_USAGE_8', 'CPU_USAGE_9',
-        'DRAM_ENERGY (J)', 'PACKAGE_ENERGY (J)', 'PP0_ENERGY (J)', 'PP1_ENERGY (J)', 
+    # Define target columns
+    target_columns = [
         'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP',
         'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'
-    }
+    ] + [f'CPU_USAGE_{i}' for i in range(16)]
 
-    # Open the file and parse each line
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
+    delta_target_columns = [
+        'DRAM_ENERGY (J)', 'PACKAGE_ENERGY (J)', 'PP0_ENERGY (J)', 'PP1_ENERGY (J)'
+    ]
 
-    # Extract the header and rows from the data
-    header = lines[0].strip().split(',')
-    rows = [line.strip().split(',') for line in lines[1:]]
+    # Read the file into a pandas DataFrame
+    df = pd.read_csv(file_path).apply(pd.to_numeric, errors='coerce')
 
-    # Filter header to include only target columns and find their indices
-    filtered_indices = [i for i, col in enumerate(header) if col in target_columns]
-    filtered_header = [header[i] for i in filtered_indices]
+    # Calculate column-wise averages, ignoring NaN values and deltas from start of experiment to finish
+    averages = df[target_columns].mean().to_dict()
+    deltas = {column: df[column].iloc[-1] - df[column].iloc[-1]  for column in delta_target_columns}
 
-    # Initialize a dictionary to store sums and counts for each column
-    totals = {col: 0.0 for col in filtered_header}
-    counts = len(rows)  # Total number of data rows
-
-    # Sum each relevant column
-    for row in rows:
-        for i in filtered_indices:
-            try:
-                # Convert value to float and add to the respective total
-                totals[header[i]] += float(row[i])
-            except ValueError:
-                # Skip if value is not a valid float
-                continue
-
-    # Calculate the average for each filtered column and return as dictionary
-    averages = {col: (totals[col] / counts) for col in filtered_header if counts > 0}
-    return averages
+    return dict(averages.items() | deltas.items())
 
 def compare_files_bash(file1, file2):
     try:
