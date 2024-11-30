@@ -110,7 +110,7 @@ def parse_energibridge_output(file_path):
 
     # Calculate column-wise averages, ignoring NaN values and deltas from start of experiment to finish
     averages = df[target_columns].mean().to_dict()
-    deltas = {column: df[column].iloc[-1] - df[column].iloc[-1]  for column in delta_target_columns}
+    deltas = {column: df[column].iloc[-1] - df[column].iloc[0]  for column in delta_target_columns}
 
     return dict(averages.items() | deltas.items())
 
