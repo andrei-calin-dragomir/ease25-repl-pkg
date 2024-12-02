@@ -1,5 +1,6 @@
 from numba import njit, deferred_type, optional, typeof, int32
 from numba.experimental import jitclass
+import sys
 
 NodeType = deferred_type()
 spec = [
@@ -66,3 +67,6 @@ def main(n):
     clear(long_lived_tree);         
 
     print(f"long lived tree of depth {max_depth}\t check: {c}") 
+
+if __name__ == '__main__':
+    main( int(sys.argv[1]) if len(sys.argv) > 1 else 10 )  

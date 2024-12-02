@@ -1,7 +1,8 @@
 from numba import njit
+from sys import argv   
 
 @njit
-def main(n):
+def fannkuch(n):
    perm1 = [0] * n   
    for i in range(n): perm1[i] = i      
    perm = [0] * n
@@ -52,4 +53,11 @@ def main(n):
 
       nperm += 1
 
-   return flips      
+   return flips
+
+def main(n): 
+   print("Pfannkuchen(%i) = %i" % (n, fannkuch(n)))    
+
+if __name__ == "__main__":
+   n = int(argv[1]) if len(argv) > 1 else 7
+   main(n)    

@@ -1,4 +1,5 @@
 from numba import njit, uint8
+import sys
 
 @njit
 def main(size):
@@ -34,3 +35,6 @@ def main(size):
             print(byte_acc)
             bit = 128
             byte_acc = 0
+
+if __name__ == '__main__':
+  main(int(sys.argv[1]))

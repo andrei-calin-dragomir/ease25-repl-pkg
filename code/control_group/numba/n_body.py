@@ -1,6 +1,8 @@
 from numba import njit, float64
 from numba.experimental import jitclass
 from math import sqrt
+import sys
+
 
 PI = 3.14159265358979323
 SOLAR_MASS = 4 * PI * PI
@@ -133,3 +135,6 @@ def main(n):
   for i in range(n):
     advance(bodies, 0.01)
   print(float(int(energy(bodies) * 10**9)) / 10**9)
+
+if __name__ == '__main__':
+  main(int(sys.argv[1]))

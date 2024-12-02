@@ -1,5 +1,6 @@
 from math import sqrt
 from numba import njit, types, typed
+import sys
 
 @njit
 def eval_A(i, j):
@@ -40,3 +41,6 @@ def main(n):
   vBv=vv=0
   for i in range(n): vBv+=u[i]*v[i]; vv+=v[i]*v[i]
   print(float(int(sqrt(vBv/vv) * 10**9)) / 10**9)
+
+if __name__ == '__main__':
+  main( int(sys.argv[1]) if len(sys.argv) > 1 else 100 )

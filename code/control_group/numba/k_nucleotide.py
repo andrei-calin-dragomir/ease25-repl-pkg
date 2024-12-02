@@ -1,6 +1,7 @@
 from numba import njit, types
 from numba.typed import List
 from numba.typed import Dict
+from sys import stdin
 
 @njit
 def seq_lines(input_lines):
@@ -42,7 +43,7 @@ def specific_count(code, seq):
     return base_counts(len(code), seq).get(code,0)   
     
 @njit
-def main(lines):
+def process(lines):
     lines = seq_lines(lines)
     seq = "".join([s.upper() for s in lines])
         
@@ -55,3 +56,21 @@ def main(lines):
             "GGTATTTTAATT", "GGTATTTTAATTTATAGT":     
         print(specific_count(code, seq),'\t',code)
 
+def main():
+    # Read input lines from stdin
+    input_lines = List([line.strip() for line in stdin])
+    
+    # Process the data using Numba functions
+    results, specific_counts = process(input_lines)
+    
+    # Print the results
+    for base_results in results:
+        for kv in base_results:
+            print(kv[0], kv[1])
+        print()
+    
+    for count, code in specific_counts:
+        print(count, '\t', code)
+
+if __name__ == '__main__':
+    main()

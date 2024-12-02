@@ -99,7 +99,7 @@ def parse_energibridge_output(file_path):
     target_columns = [
         'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP',
         'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'
-    ] + [f'CPU_USAGE_{i}' for i in range(16)]
+    ] + [f'CPU_USAGE_{i}' for i in range(12)]
 
     delta_target_columns = [
         'DRAM_ENERGY (J)', 'PACKAGE_ENERGY (J)', 'PP0_ENERGY (J)', 'PP1_ENERGY (J)'
@@ -127,7 +127,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = "mypyc_experiment"
+    name:                       str             = "numba_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -187,13 +187,13 @@ class RunnerConfig:
                 'file_io'   : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main()"',
                 'value_io'  : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main({input})"'
             },
-            'numba'     : {
-                'file_io'   : None, # TODO
-                'value_io'  : None, # TODO
-            },
             'codon'     : {
-                'file_io'   : None, # TODO
-                'value_io'  : None, # TODO
+                'file_io'   : '{target_path}/build/{target} {input}',
+                'value_io'  : '{target_path}/build/{target} {input}'
+            },
+            'numba'     : {
+                'file_io'   : '{venv_python} {target_path}/{target}.py',
+                'value_io'  : '{venv_python} {target_path}/{target}.py {input}'
             }
         }
 
@@ -215,7 +215,7 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("subject", ['pypy']) # 'cpython', 'cython', 'numba', 'codon', 'mypyc', 'nuitka'
+        factor1 = FactorModel("subject", ['numba']) # 'cpython', 'cython', 'pypy', 'codon', 'mypyc', 'nuitka'
         factor2 = FactorModel("target", ['mandelbrot', 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
