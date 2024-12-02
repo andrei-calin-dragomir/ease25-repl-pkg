@@ -8,7 +8,7 @@ def main(size):
     bit = 128
     byte_acc = 0
 
-    print((f"P4\n{size} {size}\n"))
+    print((f"P4\n{size} {size}"))
 
     size = float(size)
     for y in xr_size:
