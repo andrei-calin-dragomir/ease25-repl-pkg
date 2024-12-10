@@ -88,8 +88,8 @@ The metrics we collect are as follows:
     - LLC-stores - Count, Percentage
     - LLC-store-misses - Count, Percentage
 
-- [Energibridge](https://github.com/tdurieux/EnergiBridge.git):
-    - Per CPU:
+- [Energibridge](https://github.com/andrei-calin-dragomir/EnergiBridge.git):
+    - Per CPU core:
         - Frequency - MHz
         - Temperature - Celsius
         - Usage - Percentage
@@ -97,31 +97,50 @@ The metrics we collect are as follows:
         - CPU Usage - Percentage
         - Used Memory - Bytes
         - Used Swap Memory - Bytes
+    - Energy Consumption
+        - Package - Joules
+        - PP0 - Joules
+        - PP1 - Joules
+        - DRAM - Joules
     - Execution Time - ms
-    - Total Energy - Joules
 
 ## Installation
 
+### Orchestration Machine
 ```bash
 git clone --recursive https://github.com/andrei-calin-dragomir/ease25-repl-pkg.git
 cd ./ease25-repl-pkg
-poetry install
+poetry install --with orchestration
+```
+
+Create a `.env` file containing:
+```python
+# Ip of the experimental machine
+HOSTNAME='127.0.0.1'
+# Username of account on experimental machine
+USERNAME='username'
+# Password of account on experimental machine
+PASSWORD='1234abcd'
 ```
 
 ### Experimental Machine
 ```bash
-cd EnergiBridge/
+git clone --recursive https://github.com/andrei-calin-dragomir/ease25-repl-pkg.git
+cd ./ease25-repl-pkg
+poetry install --with experiment
 
-# Must do this on every machine reboot
-sudo chgrp -R <user> /dev/cpu/*/msr
-sudo chmod g+r /dev/cpu/*/msr
-cargo build -r
-sudo setcap cap_sys_rawio=ep target/release/energibridge
+# Builds Energibridge and sets up compiler dependencies
+sudo ./setup_experimental_machine.sh
 ```
 
 ## Execution
 
 ```bash
 poetry shell
+
+# Control Group
 python ./experiment-runner/experiment-runner/ RunnerConfig_execution.py
+
+# Experimental Group
+python ./experiment-runner/experiment-runner/ # TODO
 ```
