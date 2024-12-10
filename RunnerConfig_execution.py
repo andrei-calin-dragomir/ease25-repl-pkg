@@ -162,6 +162,9 @@ class RunnerConfig:
 
         self.run_table_model                    = None  # Initialized later
 
+        self.project_directory = "./ease25-repl-pkg"
+        self.venv_python = f'{self.project_directory}venv/bin/python'
+
         self.metric_capturing_interval  : int   = 1000  # Miliseconds
         self.warmup_time                : int   = 60    # Seconds
         self.post_warmup_cooldown_time  : int   = 30    # Seconds
@@ -172,10 +175,12 @@ class RunnerConfig:
                 'value_io'  : '{venv_python} {target_path}/{target}.py {input}'
             },
             'cython'    : {
+                'build'     : '{venv_python} {project_directory}/control_group/{target}/build.py {project_directory}/control_group/{target}/source',
                 'file_io'   : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main()"',
                 'value_io'  : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main({input})"'
             },
             'nuitka'    : {
+                'build'     : '{project_directory}/control_group/{target}/build.sh {project_directory}/control_group/cpython {project_directory}/control_group/{target}/build',
                 'file_io'   : '{target_path}/build/{target}.bin',
                 'value_io'  : '{target_path}/build/{target}.bin {input}'
             },
@@ -184,10 +189,12 @@ class RunnerConfig:
                 'value_io'  : 'pypy3 {target_path}/{target}.py {input}'
             },
             'mypyc'     : {
+                'build'     : '{venv_python} {project_directory}/control_group/{target}/build.py {project_directory}/control_group/{target}/source',
                 'file_io'   : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main()"',
                 'value_io'  : '{venv_python} -c "import sys; sys.path.insert(0, \'{target_path}/build/\'); import {target}; {target}.main({input})"'
             },
             'codon'     : {
+                'build'     : '{project_directory}/control_group/{target}/build.sh {project_directory}/control_group/{target}/source {project_directory}/control_group/{target}/build',
                 'file_io'   : '{target_path}/build/{target} {input}',
                 'value_io'  : '{target_path}/build/{target} {input}'
             },
@@ -201,26 +208,25 @@ class RunnerConfig:
             'spectralnorm'      : 5500,
             'binary_trees'      : 21,
             'fasta'             : 25000000,
-            'k_nucleotide'      : './ease25-repl-pkg/code/fasta_input.txt',
+            'k_nucleotide'      : f'{self.project_directory}/code/fasta_input.txt',
             'n_body'            : 50000000,
             'mandelbrot'        : 16000,
             'fannkuch_redux'    : 12,
         }
 
         self.intermediary_results = {'total_joules' : None, 'execution_time' : None}
-        self.venv_python = f'./ease25-repl-pkg/venv/bin/python'
 
         output.console_log("Custom config loaded")
 
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("subject", ['numba']) # 'cpython', 'cython', 'pypy', 'codon', 'mypyc', 'nuitka'
+        factor1 = FactorModel("subject", ['numba', 'cpython', 'cython', 'pypy', 'codon', 'mypyc', 'nuitka'])
         factor2 = FactorModel("target", ['mandelbrot', 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
             repetitions=15,
-            exclude_variations=[],
+            shuffle=True,
             data_columns=['cache-references', 'cache-misses', 'LLC-loads', 'LLC-load-misses', 'LLC-stores', 'LLC-store-misses',
                           'cache-references_percent', 'cache-misses_percent', 'LLC-loads_percent', 'LLC-load-misses_percent', 'LLC-stores_percent', 'LLC-store-misses_percent',
                           'CPU_USAGE_0', 'CPU_USAGE_1', 'CPU_USAGE_2', 'CPU_USAGE_3', 'CPU_USAGE_4', 'CPU_USAGE_5', 'CPU_USAGE_6', 'CPU_USAGE_7', 'CPU_USAGE_8', 'CPU_USAGE_9', 'CPU_USAGE_10', 'CPU_USAGE_11', 'CPU_USAGE_12', 'CPU_USAGE_13', 'CPU_USAGE_14', 'CPU_USAGE_15',
@@ -236,17 +242,26 @@ class RunnerConfig:
         ssh = ExternalMachineAPI()
 
         # Extract fasta_input.txt file
-        check_command = f"[ -f ./ease25-repl-pkg/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
+        check_command = f"[ -f {self.project_directory}/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
         ssh.execute_remote_command(check_command)
         check_status = ssh.stdout.readline()
         if check_status.strip() == 'not_exists':
             output.console_log("Unpacking expected results of fasta_input.txt on experimental machine...")
-            extract_command = 'tar -xf ./ease25-repl-pkg/code/fasta_input.tar.xz -C ./ease25-repl-pkg/code/'
+            extract_command = f'tar -xf {self.project_directory}/code/fasta_input.tar.xz -C {self.project_directory}/code/'
             ssh.execute_remote_command(extract_command)
+
+        # Compile binaries for all subjects
+        for target in self.subject_execution_templates.items():
+            if target['build']:
+                build_command = target['build'].format_map(defaultdict(str, {'project_directory' : self.project_directory,
+                                                                            'target'      : target,
+                                                                            'venv_python' : self.venv_python,
+                                                                            }))
+                ssh.execute_remote_command(build_command)
 
         # Warmup machine for one minute
         output.console_log("Warming up machine using a fibonnaci sequence...")
-        warmup_command = f"echo {getenv('PASSWORD')} | sudo -S {self.venv_python} ./ease25-repl-pkg/code/warmup.py 1000 & pid=$!; echo $pid"
+        warmup_command = f"echo {getenv('PASSWORD')} | sudo -S {self.venv_python} {self.project_directory}/code/warmup.py 1000 & pid=$!; echo $pid"
         ssh.execute_remote_command(warmup_command)
         time.sleep(self.warmup_time)
         ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S kill {ssh.stdout.readline()}")
@@ -266,11 +281,11 @@ class RunnerConfig:
         target = context.run_variation['target']
         input = self.target_inputs[context.run_variation['target']]
         
-        target_path = f'./ease25-repl-pkg/code/control_group/{subject}'
+        target_path = f'{self.project_directory}/code/control_group/{subject}'
 
-        self.external_run_dir = f'./ease25-repl-pkg/experiments/{self.name}/{context.run_dir.name}'
+        self.external_run_dir = f'{self.project_directory}/experiments/{self.name}/{context.run_dir.name}'
 
-        energibrige_command = f'sudo -S ./ease25-repl-pkg/EnergiBridge/target/release/energibridge --interval {self.metric_capturing_interval} --summary --output {self.external_run_dir}/energibridge.csv --command-output {self.external_run_dir}/output.txt taskset -c 0'
+        energibrige_command = f'sudo -S {self.project_directory}/EnergiBridge/target/release/energibridge --interval {self.metric_capturing_interval} --summary --output {self.external_run_dir}/energibridge.csv --command-output {self.external_run_dir}/output.txt taskset -c 0'
 
         # Fill command with current run values
         subject_command = self.subject_execution_templates[subject]['file_io' if isinstance(input, str) else 'value_io'].format_map(defaultdict(str, {'target_path' : target_path,
@@ -364,7 +379,7 @@ class RunnerConfig:
 
     def after_experiment(self) -> None:
         ssh = ExternalMachineAPI()
-        ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S rm -r ./ease25-repl-pkg/experiments")
+        ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S rm -r {self.project_directory}/experiments")
         del ssh
 
     # ================================ DO NOT ALTER BELOW THIS LINE ================================

@@ -1,9 +1,9 @@
-import glob, os
+import glob, os, sys
 from setuptools import setup 
 from mypyc.build import mypycify
 
-def build():
-    paths = glob.glob('./source/*.py', recursive=True) 
+def build(source):
+    paths = glob.glob(f'{source}/*.py', recursive=True) 
     
     setup(
         ext_modules = mypycify(paths),
@@ -12,4 +12,4 @@ def build():
     )
 
 if __name__ == "__main__":
-    build()
+    build(sys.argv[1])

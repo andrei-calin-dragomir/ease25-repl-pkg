@@ -7,9 +7,21 @@ then
     exit 1
 fi
 
-# Directory containing Python files
-SOURCE_DIR="../cpython" 
-OUTPUT_DIR="./build"
+# Check for required arguments
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <source_dir> <output_dir>"
+    exit 1
+fi
+
+# Get source and output directories from arguments
+SOURCE_DIR="$1"
+OUTPUT_DIR="$2"
+
+# Verify the source directory exists
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo "Source directory '$SOURCE_DIR' does not exist."
+    exit 1
+fi
 
 # Create output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"

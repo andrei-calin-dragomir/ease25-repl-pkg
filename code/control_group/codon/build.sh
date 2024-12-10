@@ -1,7 +1,27 @@
 #!/bin/bash
 
-SOURCE_DIR="./source"
-OUTPUT_DIR="./build"
+# Check if Nuitka is installed
+if ! command -v codon &> /dev/null
+then
+    echo "Codon could not be found. Please install it."
+    exit 1
+fi
+
+# Check for required arguments
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <source_dir> <output_dir>"
+    exit 1
+fi
+
+# Get source and output directories from arguments
+SOURCE_DIR="$1"
+OUTPUT_DIR="$2"
+
+# Verify the source directory exists
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo "Source directory '$SOURCE_DIR' does not exist."
+    exit 1
+fi
 
 # Create the output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
