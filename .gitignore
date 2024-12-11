@@ -1,5 +1,6 @@
 # Non-python related files
 .vscode
+experiments
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
