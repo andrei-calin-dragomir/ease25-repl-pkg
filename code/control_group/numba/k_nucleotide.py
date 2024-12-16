@@ -44,9 +44,11 @@ def specific_count(code, seq):
     
 @njit
 def process(lines):
-    lines = seq_lines(lines)
-    seq = "".join([s.upper() for s in lines])
-        
+    parsed_lines = seq_lines(lines)
+    seq = "".join([s.upper() for s in parsed_lines])
+    
+    lines = List.empty_list(types.unicode_type)
+
     for base in 1,2:
         for kv in sorted_freq(base, seq):
             print(kv[0], float(int(kv[1]) * 10**3) / 10**3)
@@ -58,19 +60,10 @@ def process(lines):
 
 def main():
     # Read input lines from stdin
-    input_lines = List([line.strip() for line in stdin])
+    input_lines = List([line for line in stdin])
     
     # Process the data using Numba functions
-    results, specific_counts = process(input_lines)
-    
-    # Print the results
-    for base_results in results:
-        for kv in base_results:
-            print(kv[0], kv[1])
-        print()
-    
-    for count, code in specific_counts:
-        print(count, '\t', code)
+    process(input_lines)
 
 if __name__ == '__main__':
     main()

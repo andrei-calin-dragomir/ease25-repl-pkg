@@ -217,11 +217,11 @@ class RunnerConfig:
                 'file_io'   : '{venv_python} {target_path}/{target}.py',
                 'value_io'  : '{venv_python} {target_path}/{target}.py {input}'
             },
-            'pytran'     : {
+            'pythran'     : {
                 'file_io'   : None,
                 'value_io'  : None
             },
-            'pystonlite'    : {
+            'pyston-lite'    : {
                 'file_io'   : None,
                 'value_io'  : None
             }
@@ -252,11 +252,10 @@ class RunnerConfig:
             shuffle=True,
             data_columns=['cache-references', 'cache-misses', 'LLC-loads', 'LLC-load-misses', 'LLC-stores', 'LLC-store-misses',
                           'cache-references_percent', 'cache-misses_percent', 'LLC-loads_percent', 'LLC-load-misses_percent', 'LLC-stores_percent', 'LLC-store-misses_percent',
-                          'CPU_USAGE_0', 'CPU_USAGE_1', 'CPU_USAGE_2', 'CPU_USAGE_3', 'CPU_USAGE_4', 'CPU_USAGE_5', 'CPU_USAGE_6', 'CPU_USAGE_7', 'CPU_USAGE_8', 'CPU_USAGE_9', 'CPU_USAGE_10', 'CPU_USAGE_11', 'CPU_USAGE_12', 'CPU_USAGE_13', 'CPU_USAGE_14', 'CPU_USAGE_15',
                           'DRAM_ENERGY (J)', 'PACKAGE_ENERGY (J)', 'PP0_ENERGY (J)', 'PP1_ENERGY (J)', 
                           'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP',
                           'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY',
-                          'total_joules', 'execution_time']
+                          'total_joules', 'execution_time'] + [f"CPU_USAGE_{i}" for i in range(12)]
         )
         return self.run_table_model
 
