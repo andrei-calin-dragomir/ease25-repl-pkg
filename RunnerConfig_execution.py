@@ -22,8 +22,10 @@ from scp import SCPClient
 from collections import defaultdict
 load_dotenv()
 
+RAPL_OVERFLOW_VALUE = 262143.328850
+
 class ExternalMachineAPI:
-    def __init__(self):
+    def __init__(self, machine_name: str):
 
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -33,9 +35,9 @@ class ExternalMachineAPI:
         self.stderr = None
         
         try:
-            self.ssh.connect(hostname=getenv('HOSTNAME'), username=getenv('USERNAME'), password=getenv('PASSWORD'))
+            self.ssh.connect(hostname=getenv(f'{machine_name}_HOSTNAME'), username=getenv(f'{machine_name}_USERNAME'), password=getenv(f'{machine_name}_PASSWORD'))
         except paramiko.SSHException:
-            print('Failed to send run command to machine!')
+            output.console_log_FAIL('Failed to send run command to machine!')
 
     def execute_remote_command(self, command : str = '', overwrite_channels : bool = True):
         try:
@@ -45,16 +47,16 @@ class ExternalMachineAPI:
             else:
                 self.ssh.exec_command(command)
         except paramiko.SSHException:
-            print('Failed to send run command to machine!')
+            output.console_log_FAIL('Failed to send run command to machine.')
         except TimeoutError:
-            print('Timeout reached while waiting for command output.')
+            output.console_log_FAIL('Timeout reached while waiting for command output.')
 
     def copy_file_from_remote(self, remote_path, local_path):
         # Create SSH client and SCP client
         with SCPClient(self.ssh.get_transport()) as scp:
             # Copy the file from remote to local
             scp.get(remote_path, local_path, recursive=True)
-        print(f"Copied {remote_path} to {local_path}")
+        output.console_log_OK(f"Copied {remote_path} to {local_path}")
 
     def __del__(self):
         self.stdin.close()
@@ -97,8 +99,7 @@ def parse_perf_output(file_path):
 def parse_energibridge_output(file_path):
     # Define target columns
     target_columns = [
-        'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP',
-        'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'
+        'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'
     ] + [f'CPU_USAGE_{i}' for i in range(12)]
 
     delta_target_columns = [
@@ -110,7 +111,19 @@ def parse_energibridge_output(file_path):
 
     # Calculate column-wise averages, ignoring NaN values and deltas from start of experiment to finish
     averages = df[target_columns].mean().to_dict()
-    deltas = {column: df[column].iloc[-1] - df[column].iloc[0]  for column in delta_target_columns}
+    deltas = {}
+
+    # Account and mitigate potential RAPL overflow during metric collection
+    overflow_counter = 0
+    for column in delta_target_columns:
+        # Iterate and adjust values in the array
+        column_data = df[column].to_numpy()
+        for i in range(1, len(column_data)):
+            if column_data[i] < column_data[i - 1]:
+                output.console_log_WARNING(f"RAPL Overflow found:\nReading {i-1}: {column_data[i-1]}\nReading {i}: {column_data[i]}")
+                overflow_counter += 1
+                column_data[i:] += overflow_counter * RAPL_OVERFLOW_VALUE
+        deltas[column] = column_data[-1] - column_data[0]
 
     return dict(averages.items() | deltas.items())
 
@@ -126,8 +139,10 @@ class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
 
     # ================================ USER SPECIFIC CONFIG ================================
+    """The name of the experimental machine"""
+    machine_name:               str             = 'NUC'
     """The name of the experiment."""
-    name:                       str             = "numba_experiment"
+    name:                       str             = f"{machine_name}_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -201,6 +216,14 @@ class RunnerConfig:
             'numba'     : {
                 'file_io'   : '{venv_python} {target_path}/{target}.py',
                 'value_io'  : '{venv_python} {target_path}/{target}.py {input}'
+            },
+            'pytran'     : {
+                'file_io'   : None,
+                'value_io'  : None
+            },
+            'pystonlite'    : {
+                'file_io'   : None,
+                'value_io'  : None
             }
         }
 
@@ -239,7 +262,7 @@ class RunnerConfig:
 
     def before_experiment(self) -> None:
         output.console_log("Config.before_experiment() called!")
-        ssh = ExternalMachineAPI()
+        ssh = ExternalMachineAPI(self.machine_name)
 
         # Extract fasta_input.txt file
         check_command = f"[ -f {self.project_directory}/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
@@ -302,7 +325,7 @@ class RunnerConfig:
 
         self.perf_command = f'sudo -S perf stat -x, -o {self.external_run_dir}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p'
         # Make directory of run on experimental machine
-        ssh = ExternalMachineAPI()
+        ssh = ExternalMachineAPI(self.machine_name)
         ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S mkdir -p {self.external_run_dir}")
         del ssh
 
@@ -311,7 +334,7 @@ class RunnerConfig:
 
     def start_measurement(self, context: RunnerContext) -> None:
         output.console_log("Config.start_measurement() called!")    
-        ssh = ExternalMachineAPI()
+        ssh = ExternalMachineAPI(self.machine_name)
         ssh.execute_remote_command(self.execution_command)
         output.console_log(f'Running command through energibridge with:\n{self.execution_command}')
 
@@ -352,7 +375,7 @@ class RunnerConfig:
         output.console_log("Config.populate_run_data() called!")
 
 
-        ssh = ExternalMachineAPI()
+        ssh = ExternalMachineAPI(self.machine_name)
         ssh.execute_remote_command(f'ls {self.external_run_dir}')
         files = ssh.stdout.readlines()
         for file in files:
@@ -378,7 +401,7 @@ class RunnerConfig:
             return None
 
     def after_experiment(self) -> None:
-        ssh = ExternalMachineAPI()
+        ssh = ExternalMachineAPI(self.machine_name)
         ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S rm -r {self.project_directory}/experiments")
         del ssh
 

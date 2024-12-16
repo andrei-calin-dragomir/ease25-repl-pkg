@@ -131,6 +131,9 @@ poetry install --with experiment
 
 # Builds Energibridge and sets up compiler dependencies
 sudo ./setup_experimental_machine.sh
+
+# Must do this on every machine reboot
+sudo setcap cap_sys_rawio=ep ./EnergiBridge/target/release/energibridge
 ```
 
 ## Execution
