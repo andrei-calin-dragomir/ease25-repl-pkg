@@ -25,7 +25,7 @@ load_dotenv()
 RAPL_OVERFLOW_VALUE = 262143.328850
 
 class ExternalMachineAPI:
-    def __init__(self, machine_name: str):
+    def __init__(self):
 
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -35,7 +35,7 @@ class ExternalMachineAPI:
         self.stderr = None
         
         try:
-            self.ssh.connect(hostname=getenv(f'{machine_name}_HOSTNAME'), username=getenv(f'{machine_name}_USERNAME'), password=getenv(f'{machine_name}_PASSWORD'))
+            self.ssh.connect(hostname=getenv(f'HOSTNAME'), username=getenv(f'USERNAME'), password=getenv(f'PASSWORD'))
         except paramiko.SSHException:
             output.console_log_FAIL('Failed to send run command to machine!')
 
@@ -139,10 +139,8 @@ class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
 
     # ================================ USER SPECIFIC CONFIG ================================
-    """The name of the experimental machine"""
-    machine_name:               str             = 'NUC'
     """The name of the experiment."""
-    name:                       str             = f"{machine_name}_experiment"
+    name:                       str             = f"full_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -177,8 +175,8 @@ class RunnerConfig:
 
         self.run_table_model                    = None  # Initialized later
 
-        self.project_directory = "./ease25-repl-pkg"
-        self.venv_python = f'{self.project_directory}venv/bin/python'
+        self.project_directory = "./Work/GreenLab/greenlab-python-compilation-experiment/"
+        self.venv_python = f'poetry run python'
 
         self.metric_capturing_interval  : int   = 1000  # Miliseconds
         self.warmup_time                : int   = 60    # Seconds
@@ -237,8 +235,6 @@ class RunnerConfig:
             'fannkuch_redux'    : 12,
         }
 
-        self.intermediary_results = {'total_joules' : None, 'execution_time' : None}
-
         output.console_log("Custom config loaded")
 
     def create_run_table_model(self) -> RunTableModel:
@@ -261,7 +257,7 @@ class RunnerConfig:
 
     def before_experiment(self) -> None:
         output.console_log("Config.before_experiment() called!")
-        ssh = ExternalMachineAPI(self.machine_name)
+        ssh = ExternalMachineAPI()
 
         # Extract fasta_input.txt file
         check_command = f"[ -f {self.project_directory}/code/fasta_input.txt ] && echo 'exists' || echo 'not_exists'"
@@ -324,7 +320,7 @@ class RunnerConfig:
 
         self.perf_command = f'sudo -S perf stat -x, -o {self.external_run_dir}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p'
         # Make directory of run on experimental machine
-        ssh = ExternalMachineAPI(self.machine_name)
+        ssh = ExternalMachineAPI()
         ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S mkdir -p {self.external_run_dir}")
         del ssh
 
@@ -333,7 +329,7 @@ class RunnerConfig:
 
     def start_measurement(self, context: RunnerContext) -> None:
         output.console_log("Config.start_measurement() called!")    
-        ssh = ExternalMachineAPI(self.machine_name)
+        ssh = ExternalMachineAPI()
         ssh.execute_remote_command(self.execution_command)
         output.console_log(f'Running command through energibridge with:\n{self.execution_command}')
 
@@ -349,13 +345,9 @@ class RunnerConfig:
 
         # Energy Bridge Summary format: Energy consumption in joules: 7.630859375 for 2.0023594 sec of execution.
         next_line = ssh.stdout.readline()
-        output.console_log(f'Summary of energibridge: {next_line}')
-        parts = next_line.split()
-        self.intermediary_results['total_joules'] = float(parts[4])
-        self.intermediary_results['execution_time'] = float(parts[6])
+        output.console_log_bold(f'Summary of energibridge: {next_line}')
         del ssh
 
-        output.console_log_bold(f"Execution Time (seconds): {self.intermediary_results['execution_time']}")
         output.console_log_OK('Run has successfuly finished.')
 
     def interact(self, context: RunnerContext) -> None:
@@ -374,7 +366,7 @@ class RunnerConfig:
         output.console_log("Config.populate_run_data() called!")
 
 
-        ssh = ExternalMachineAPI(self.machine_name)
+        ssh = ExternalMachineAPI()
         ssh.execute_remote_command(f'ls {self.external_run_dir}')
         files = ssh.stdout.readlines()
         for file in files:
@@ -393,14 +385,14 @@ class RunnerConfig:
             remove(received_output_file)
             ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S rm {self.external_run_dir}/output.txt")
             del ssh
-            return dict(perf_output.items() | self.intermediary_results.items() | energibridge_output.items())
+            return dict(perf_output.items() | energibridge_output.items())
         else:
             output.console_log_FAIL(f'Target function did not return the expected result.')
             del ssh
             return None
 
     def after_experiment(self) -> None:
-        ssh = ExternalMachineAPI(self.machine_name)
+        ssh = ExternalMachineAPI()
         ssh.execute_remote_command(f"echo {getenv('PASSWORD')} | sudo -S rm -r {self.project_directory}/experiments")
         del ssh
 
