@@ -270,7 +270,7 @@ class RunnerConfig:
 
         # Compile binaries for all subjects
         for target, data in self.subject_execution_templates.items():
-            if data['build']:
+            if data.get('build', None):
                 build_command = data['build'].format_map(defaultdict(str, {'project_directory' : self.project_directory,
                                                                             'target'      : target,
                                                                             'venv_python' : self.venv_python,
