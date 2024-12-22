@@ -269,9 +269,9 @@ class RunnerConfig:
             ssh.execute_remote_command(extract_command)
 
         # Compile binaries for all subjects
-        for target in self.subject_execution_templates.items():
-            if target['build']:
-                build_command = target['build'].format_map(defaultdict(str, {'project_directory' : self.project_directory,
+        for target, data in self.subject_execution_templates.items():
+            if data['build']:
+                build_command = data['build'].format_map(defaultdict(str, {'project_directory' : self.project_directory,
                                                                             'target'      : target,
                                                                             'venv_python' : self.venv_python,
                                                                             }))
