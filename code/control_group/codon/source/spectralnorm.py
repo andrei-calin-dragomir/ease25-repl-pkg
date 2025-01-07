@@ -7,7 +7,7 @@ def eval_A(i, j):
 
 def eval_A_times_u(N, u, Au):
   for i in range(N):  
-    Au[i] = 0.
+    Au[i] = 0
     for j in range(N):
         Au[i] += eval_A(i,j) * u[j]    
 
@@ -32,7 +32,10 @@ def main(n):
   for i in range(n):
     vBv+=u[i]*v[i]; vv+=v[i]*v[i]  
 
-  print(float(int(sqrt(vBv/vv) * 10**9)) / 10**9)
+  result = float(int(sqrt(vBv / vv) * 10**9)) / 10**9
+
+  # Print with full precision
+  print(f"{result:.9f}")
 
 if __name__ == '__main__':
     number = int(sys.argv[1])

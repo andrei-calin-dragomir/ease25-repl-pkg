@@ -1,13 +1,7 @@
-# The Computer Language Benchmarks Game
-# https://salsa.debian.org/benchmarksgame-team/benchmarksgame/
-#
-# contributed by Tupteq
-# 2to3 - fixed by Daniele Varrazzo, fixed by Isaac Gouy
 import sys
 
-def main():
+def main(size):
     cout = sys.stdout.buffer.write
-    size = int(sys.argv[1])
     xr_size = range(size)
     xr_iter = range(50)
     bit = 128
@@ -32,13 +26,14 @@ def main():
             if bit > 1:
                 bit >>= 1
             else:
-                cout(bytes([byte_acc]))
+                print(byte_acc)
                 bit = 128
                 byte_acc = 0
 
         if bit != 128:
-            cout(bytes([byte_acc]))
+            print(byte_acc)
             bit = 128
             byte_acc = 0
 
-main()
+if __name__ == '__main__':
+  main(int(sys.argv[1]))

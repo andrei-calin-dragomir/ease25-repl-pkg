@@ -121,10 +121,10 @@ def main(n):
     ]    
    
   offset_momentum(bodies)
-  print(float(int(energy(bodies) * 10**9)) / 10**9)
+  print(f"{(float(int(energy(bodies) * 10**9)) / 10**9):.9f}")
   for i in range(n):
     advance(bodies, 0.01)
-  print(float(int(energy(bodies) * 10**9)) / 10**9)
+  print(f"{(float(int(energy(bodies) * 10**9)) / 10**9):.9f}")
 
 if __name__ == '__main__':
     number = int(sys.argv[1])

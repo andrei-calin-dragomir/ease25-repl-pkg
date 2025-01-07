@@ -54,5 +54,5 @@ def main(n):
    return flips      
 
 if __name__ == '__main__':
-    number = int(sys.argv[1])
-    main(number)
+   number = int(sys.argv[1])
+   print(f"Pfannkuchen({number}) = {main(number)}")

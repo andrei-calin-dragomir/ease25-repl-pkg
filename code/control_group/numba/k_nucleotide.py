@@ -34,9 +34,9 @@ def base_counts(bases, seq):
 def sorted_freq(bases, seq):  
     keysValues = base_counts(bases, seq).items()
     size = len(seq) + 1 - bases    
-    #sorted_ = sorted(keysValues, reverse=True, key=lambda kv: kv[1])
-    #return [ (kv[0], 100.0 * kv[1] / size) for kv in sorted_ ]  
-    return [ (kv[0], 100.0 * kv[1] / size) for kv in keysValues ]  
+    sorted_ = sorted(keysValues, reverse=True, key=lambda kv: kv[1])
+    return [ (kv[0], 100.0 * kv[1] / size) for kv in sorted_ ]  
+    # return [ (kv[0], 100.0 * kv[1] / size) for kv in keysValues ]  
       
 @njit
 def specific_count(code, seq):  
