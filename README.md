@@ -30,23 +30,25 @@ We selected 7 functions from the Computer Language Benchmark Game (CLBG) followi
 
 ### Subjects (Execution Modes)
 
-| Subject | Type   | Description | Notes | Build                                                                    |
-| ------- | ------ | ----------- | ----- | ------------------------------------------------------------------       | 
-| PyPy    | JIT    |             | pypy3 | `pypy --opt=2` No need to set --opt=2, it is the default value           |
-| Nuitka  | AOT    |             |       | `python -m nuitka --standalone --python-flag=no_site your_script.py`     |
-| Cython  | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
-| CPython | Inter. |             |       |                                                                          |
-| Codon   | AOT    |             |       | `codon build -release -exe "$py_file" -o "build/${py_file%.*}"`          |
-| mypyc   | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
-| Numba   | JIT    |             |       |  no flags, just decorator                                                |
+| Subject     | Type   | Description | Notes | Build                                                                    |
+| -------     | ------ | ----------- | ----- | ------------------------------------------------------------------       | 
+| PyPy        | JIT    |             | pypy3 | `pypy --opt=2` No need to set --opt=2, it is the default value           |
+| Nuitka      | AOT    |             |       | `python -m nuitka --standalone --python-flag=no_site your_script.py`     |
+| Cython      | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
+| CPython     | Inter. |             |       |                                                                          |
+| Codon       | AOT    |             |       | `codon build -release -exe "$py_file" -o "build/${py_file%.*}"`          |
+| mypyc       | AOT    |             |       | `-O3` check the output of `build.py`                                     | 
+| Numba       | JIT    |             |       | no flags, just decorator                                                 |
+| Pyston-lite | JIT    |             |       | enable upon installation of the JIT compiler (Python 3.10 needed)        |
+| Py3.13 JIT  | JIT    |             |       |                                                                          | 
 
 
 #### To Test 
 
 | Subject     | Type | Description | Notes                          |
 | ----------- | ---- | ----------- | ------------------------------ |
-| Pyston-lite | JIT  |             |                                |
 | pyjion      | JIT  |             |                                |
+| Jython      | JIT  |             |                                |
 
 note: the modes are different: interpreted, python DSL, AOT, JIT. We describe in the discussion section but not part of this study.
 
