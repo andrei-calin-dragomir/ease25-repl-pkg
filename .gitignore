@@ -1,6 +1,7 @@
 # Non-python related files
 .vscode
-experiments
+experiments/*_experiment_*
+experiments/*_experiment
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
