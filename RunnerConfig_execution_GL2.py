@@ -35,7 +35,10 @@ class ExternalMachineAPI:
         self.stderr = None
         
         try:
-            self.ssh.connect(hostname=getenv(f'NUC_HOSTNAME'), username=getenv(f'NUC_USERNAME'), password=getenv(f'NUC_PASSWORD'))
+            self.ssh.connect(hostname=getenv(f'GL2_HOSTNAME'), username=getenv(f'GL2_USERNAME'), password=getenv(f'GL2_PASSWORD'))
+            # After connecting
+            self.ssh.get_transport().set_keepalive(30)  # Send keep-alive packets every 30 seconds
+
         except paramiko.SSHException:
             output.console_log_FAIL('Failed to send run command to machine!')
 
@@ -45,7 +48,7 @@ class ExternalMachineAPI:
             if overwrite_channels:
                 self.stdin, self.stdout, self.stderr = self.ssh.exec_command(command,environment=env)
             else:
-                self.ssh.exec_command(command)
+                self.ssh.exec_command(command,environment=env, timeout=4200)
         except paramiko.SSHException:
             output.console_log_FAIL('Failed to send run command to machine.')
         except TimeoutError:
@@ -57,6 +60,25 @@ class ExternalMachineAPI:
             # Copy the file from remote to local
             scp.get(remote_path, local_path, recursive=True)
         output.console_log_OK(f"Copied {remote_path} to {local_path}")
+
+    def read_line_indefinitely(self):
+        buffer = ""
+        while True:
+            char = self.stdout.read(1).decode('utf-8')  # Read one byte at a time
+            if char:  # If data is received
+                buffer += char
+                if '\n' in buffer:  # Check if a full line has been read
+                    line, buffer = buffer.split('\n', 1)
+                    return line.strip()
+            else:
+                # Check if the stream is closed
+                if self.stdout.channel.exit_status_ready():
+                    break
+                # Optional: Add a small sleep to avoid busy loop
+                time.sleep(0.1)
+
+        # If we exit the loop, no more data will be received
+        return None
 
     def __del__(self):
         self.stdin.close()
@@ -103,7 +125,7 @@ def parse_perf_output(file_path):
 def parse_energibridge_output(file_path):
     # Define target columns
     target_columns = [
-        'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP', 'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'] + [f'CPU_USAGE_{i}' for i in range(12)] + [f'CPU_FREQUENCY_{i}' for i in range(12)]
+        'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP', 'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'] + [f'CPU_USAGE_{i}' for i in range(4)] + [f'CPU_FREQUENCY_{i}' for i in range(4)]
 
     delta_target_columns = [
         'DRAM_ENERGY (J)', 'PACKAGE_ENERGY (J)', 'PP0_ENERGY (J)', 'PP1_ENERGY (J)'
@@ -143,7 +165,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = f"NUC_experiment_fix"
+    name:                       str             = f"GL2_experiment_fix"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -155,7 +177,7 @@ class RunnerConfig:
 
     """The time Experiment Runner will wait after a run completes.
     This can be essential to accommodate for cooldown periods on some systems."""
-    time_between_runs_in_ms:    int             = 120000
+    time_between_runs_in_ms:    int             = 60000
 
     # Dynamic configurations can be one-time satisfied here before the program takes the config as-is
     # e.g. Setting some variable based on some criteria
@@ -183,7 +205,7 @@ class RunnerConfig:
 
         self.metric_capturing_interval  : int   = 200  # Miliseconds
         self.warmup_time                : int   = 60    # Seconds
-        self.post_warmup_cooldown_time  : int   = 30    # Seconds
+        self.post_warmup_cooldown_time  : int   = 30   # Seconds
 
         self.subject_execution_templates = {
             'cpython'   : {
@@ -259,17 +281,17 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        factor1 = FactorModel("subject", ['cpython', 'py3.13-jit', 'pyston-lite']) # 'jython', 'pyjion', 'numba', 'cython', 'pypy', 'codon', 'mypyc', 'nuitka', 
+        factor1 = FactorModel("subject", ['cpython', 'py3.13-jit', 'pyston-lite']) # 'numba', 'cython', 'pypy', 'codon', 'mypyc', 'nuitka', 'jython', 'pyjion'
         factor2 = FactorModel("target", ['mandelbrot', 'spectralnorm', 'binary_trees', 'fasta', 'k_nucleotide', 'n_body', 'fannkuch_redux'])
         self.run_table_model = RunTableModel(
             factors=[factor1, factor2],
-            repetitions=15,
+            repetitions=10,
             shuffle=True,
             data_columns=['cache-references', 'cache-misses', 'LLC-loads', 'LLC-load-misses', 'LLC-stores', 'LLC-store-misses',
                           'cache-misses_percent', 'LLC-load-misses_percent', 'LLC-store-misses_percent',
                           'DRAM_ENERGY (J)', 'PACKAGE_ENERGY (J)', 'PP0_ENERGY (J)', 'PP1_ENERGY (J)', 
                           'TOTAL_MEMORY', 'TOTAL_SWAP', 'USED_MEMORY', 'USED_SWAP', 'execution_time',
-                          'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'] + [f"CPU_USAGE_{i}" for i in range(12)] + [f'CPU_FREQUENCY_{i}' for i in range(12)]
+                          'PROCESS_CPU_USAGE', 'PROCESS_MEMORY', 'PROCESS_VIRTUAL_MEMORY'] + [f"CPU_USAGE_{i}" for i in range(4)] + [f'CPU_FREQUENCY_{i}' for i in range(4)]
         )
         return self.run_table_model
 
@@ -288,10 +310,10 @@ class RunnerConfig:
 
         # Warmup machine for one minute
         output.console_log("Warming up machine using a fibonnaci sequence...")
-        warmup_command = f"echo {getenv('NUC_PASSWORD')} | sudo -S python {self.project_directory}/code/warmup.py 1000 & pid=$!; echo $pid"
+        warmup_command = f"echo {getenv('GL2_PASSWORD')} | sudo -S python {self.project_directory}/code/warmup.py 1000 & pid=$!; echo $pid"
         ssh.execute_remote_command(warmup_command)
         time.sleep(self.warmup_time)
-        ssh.execute_remote_command(f"echo {getenv('NUC_PASSWORD')} | sudo -S kill {ssh.stdout.readline()}")
+        ssh.execute_remote_command(f"echo {getenv('GL2_PASSWORD')} | sudo -S kill {ssh.stdout.readline()}")
 
         # Cooldown machine
         time.sleep(self.post_warmup_cooldown_time)
@@ -333,15 +355,15 @@ class RunnerConfig:
         
         # Wrap command to fit paramiko call
         if isinstance(input, str):
-            self.execution_command = f"{energibrige_command} {subject_command}< <(echo {getenv('NUC_PASSWORD')} && cat {input})"
+            self.execution_command = f"{energibrige_command} {subject_command}< <(echo {getenv('GL2_PASSWORD')} && cat {input})"
         else:
-            self.execution_command = f"echo {getenv('NUC_PASSWORD')} | {energibrige_command} {subject_command}"
+            self.execution_command = f"echo {getenv('GL2_PASSWORD')} | {energibrige_command} {subject_command}"
 
-        # self.perf_command = f'sudo -S perf stat -C 0 -x, -o {self.external_run_dir}/perf.csv -e cache-references,cache-misses,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses -p'
-        self.perf_command = f'sudo -S perf stat -C 0 -x, -o {self.external_run_dir}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p'
+        self.perf_command = f'sudo -S perf stat -C 0 -x, -o {self.external_run_dir}/perf.csv -e cache-references,cache-misses,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses -p'
+        # self.perf_command = f'sudo -S perf stat -C 0 -x, -o {self.external_run_dir}/perf.csv -e cpu_core/cache-references/,cpu_core/cache-misses/,cpu_core/LLC-loads/,cpu_core/LLC-load-misses/,cpu_core/LLC-stores/,cpu_core/LLC-store-misses/ -p'
 
         # Make directory of run on experimental machine
-        ssh.execute_remote_command(f"echo {getenv('NUC_PASSWORD')} | sudo -S mkdir -p {self.external_run_dir}")
+        ssh.execute_remote_command(f"echo {getenv('GL2_PASSWORD')} | sudo -S mkdir -p {self.external_run_dir}")
         del ssh
 
         output.console_log(f'Run directory on experimental machine: {self.external_run_dir}')
@@ -361,7 +383,7 @@ class RunnerConfig:
         # Start perf monitor and attach it to the target process
         output.console_log(f'PID of run interaction: {self.interaction_pid}')
         
-        perf_command = f"echo {getenv('NUC_PASSWORD')} | {self.perf_command} {str(self.interaction_pid)}"
+        perf_command = f"echo {getenv('GL2_PASSWORD')} | {self.perf_command} {str(self.interaction_pid)}"
         output.console_log(f'Running perf with:\n{perf_command}')
         ssh.execute_remote_command(perf_command, overwrite_channels=False)
         output.console_log_OK('Run has successfuly started.')
@@ -404,7 +426,7 @@ class RunnerConfig:
         # else:
         #     output.console_log_FAIL(f'Target function did not return the expected result.')
         # # Remove output files because they take a lot of space
-        # # ssh.execute_remote_command(f"echo {getenv('NUC_PASSWORD')} | sudo -S rm -r {self.external_run_dir}")
+        # # ssh.execute_remote_command(f"echo {getenv('GL2_PASSWORD')} | sudo -S rm -r {self.external_run_dir}")
 
         received_output_file = f"{context.run_dir}/output.txt"
         remove(received_output_file)
@@ -416,7 +438,7 @@ class RunnerConfig:
 
     def after_experiment(self) -> None:
         ssh = ExternalMachineAPI()
-        ssh.execute_remote_command(f"echo {getenv('NUC_PASSWORD')} | sudo -S rm -r {self.project_directory}/experiments")
+        ssh.execute_remote_command(f"echo {getenv('GL2_PASSWORD')} | sudo -S rm -r {self.project_directory}/experiments")
         del ssh
 
     # ================================ DO NOT ALTER BELOW THIS LINE ================================
