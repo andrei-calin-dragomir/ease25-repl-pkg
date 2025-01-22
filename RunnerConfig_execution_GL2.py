@@ -139,8 +139,8 @@ def parse_energibridge_output(file_path):
     deltas = {}
 
     # Account and mitigate potential RAPL overflow during metric collection
-    overflow_counter = 0
     for column in delta_target_columns:
+        overflow_counter = 0
         # Iterate and adjust values in the array
         column_data = df[column].to_numpy()
         for i in range(1, len(column_data)):
